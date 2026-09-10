@@ -87,6 +87,15 @@ Entre os dados necessários para o funcionamento do projeto estão:
 
 Para o carro, o custo poderá ser estimado a partir da distância percorrida, combustível, pedágios e regras de reembolso. Para ônibus e avião, poderão ser utilizadas fontes de preços de passagens.
 
+## Datasets e Fontes de Dados
+
+Até o momento, os datasets e fontes de dados utilizados no projeto são:
+
+Banco Central do Brasil – Cadastro de Agências – utilizado como fonte para informações cadastrais e de localização das agências bancárias.
+Kaggle – Gas Prices in Brazil – utilizado como fonte de dados históricos de preços de combustíveis no Brasil, auxiliando na estimativa dos custos dos deslocamentos realizados de carro.
+
+Essas são as fontes utilizadas até o momento. Conforme o desenvolvimento do projeto avançar, novos datasets e fontes de dados poderão ser incorporados para complementar as informações necessárias para a roteirização, como dados de transporte, preços de passagens, tempos de deslocamento e outras informações relevantes para o modelo.
+
 ## Otimização
 
 A principal parte do projeto será encontrar uma sequência de visitas que apresente um resultado melhor em relação ao tempo e ao custo da viagem.
