@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roteirização de Visitas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#12263A;        /* azul-marinho institucional: cor de comando */
+  --tinta-2:#1D3A55;
+  --tinta-3:#2C4E6E;
+  --ganho:#0E7C66;        /* verde: exclusivo para economia e redução */
+  --ganho-fraco:#E4F1ED;
+  --alerta:#9A5B12;       /* âmbar: prioridade alta e prazo apertado */
+  --alerta-fraco:#FBF0DF;
+  --risco:#A3271F;
+  --tela:#EFF2F6;
+  --papel:#FFFFFF;
+  --linha:#D9E0E8;
+  --linha-forte:#C2CCD8;
+  --texto:#12263A;
+  --texto-fraco:#5A7185;
+  --texto-tenue:#889BAC;
+  --raio:6px;
+  --sombra:0 1px 2px rgba(18,38,58,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--tela);
+  color:var(--texto);
+  font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;font-weight:600;margin:0;letter-spacing:-.01em}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+/* ---------- estrutura ---------- */
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+
+.lateral{
+  background:var(--tinta);
+  color:#C9D6E2;
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;
+}
+.marca{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.09)}
+.marca-nome{font-family:'IBM Plex Serif',serif;font-size:16px;color:#fff;font-weight:600;line-height:1.25}
+.marca-sub{font-size:11.5px;color:#7E97AE;margin-top:3px}
+.menu{padding:14px 12px;flex:1;display:flex;flex-direction:column;gap:2px}
+.menu button{
+  display:flex;align-items:center;gap:10px;width:100%;
+  background:none;border:0;color:#B7C7D6;
+  padding:9px 12px;border-radius:var(--raio);text-align:left;font-size:13.5px;
+}
+.menu button:hover{background:rgba(255,255,255,.07);color:#fff}
+.menu button[aria-current="page"]{background:var(--tinta-3);color:#fff;font-weight:500}
+.menu svg{width:16px;height:16px;flex:none;opacity:.85}
+.usuario{
+  padding:14px 18px;border-top:1px solid rgba(255,255,255,.09);
+  display:flex;align-items:center;gap:11px;
+}
+.avatar{
+  width:32px;height:32px;border-radius:50%;flex:none;
+  background:var(--tinta-3);color:#fff;
+  display:grid;place-items:center;font-size:12px;font-weight:600;
+}
+.usuario-nome{color:#fff;font-size:13px;font-weight:500;line-height:1.3}
+.usuario-papel{font-size:11.5px;color:#7E97AE}
+
+.principal{display:flex;flex-direction:column;min-width:0}
+.topo{
+  background:var(--papel);border-bottom:1px solid var(--linha);
+  padding:0 28px;height:64px;
+  display:flex;align-items:center;gap:18px;
+  position:sticky;top:0;z-index:30;
+}
+.trilha{font-size:13px;color:var(--texto-fraco);flex:1;min-width:0}
+.trilha b{color:var(--texto);font-weight:500}
+.conteudo{padding:26px 28px 60px;max-width:1280px;width:100%}
+
+/* ---------- seletor de regional ---------- */
+.regional{position:relative}
+.regional-botao{
+  display:flex;align-items:center;gap:10px;
+  background:var(--papel);border:1px solid var(--linha-forte);
+  border-radius:var(--raio);padding:7px 12px;min-width:250px;text-align:left;
+}
+.regional-botao:hover{border-color:var(--tinta-3)}
+.regional-rot{font-size:11px;color:var(--texto-tenue);line-height:1.2}
+.regional-val{font-size:13.5px;font-weight:500;line-height:1.3}
+.regional-botao svg{margin-left:auto;width:14px;height:14px;color:var(--texto-fraco)}
+.regional-lista{
+  position:absolute;top:calc(100% + 6px);left:0;width:400px;
+  background:var(--papel);border:1px solid var(--linha-forte);
+  border-radius:var(--raio);box-shadow:0 8px 28px rgba(18,38,58,.16);
+  z-index:40;display:none;
+}
+.regional-lista.aberta{display:block}
+.regional-busca{padding:10px;border-bottom:1px solid var(--linha)}
+.regional-busca input{
+  width:100%;padding:8px 10px;border:1px solid var(--linha-forte);
+  border-radius:var(--raio);outline:0;
+}
+.regional-busca input:focus{border-color:var(--tinta-3);box-shadow:0 0 0 3px rgba(44,78,110,.12)}
+.regional-itens{max-height:340px;overflow:auto;padding:6px}
+.regional-item{
+  display:block;width:100%;text-align:left;background:none;border:0;
+  padding:8px 10px;border-radius:var(--raio);
+}
+.regional-item:hover{background:var(--tela)}
+.regional-item[aria-selected="true"]{background:var(--ganho-fraco)}
+.regional-item .n{font-size:13.5px;font-weight:500}
+.regional-item .d{font-size:11.5px;color:var(--texto-fraco);font-variant-numeric:tabular-nums}
+.vazio{padding:22px;text-align:center;color:var(--texto-fraco);font-size:13px}
+
+/* ---------- botões ---------- */
+.btn{
+  border:1px solid var(--linha-forte);background:var(--papel);
+  padding:8px 14px;border-radius:var(--raio);font-size:13.5px;font-weight:500;
+}
+.btn:hover{border-color:var(--tinta-3)}
+.btn-principal{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.btn-principal:hover{background:var(--tinta-2);border-color:var(--tinta-2)}
+.btn:focus-visible,.menu button:focus-visible,.regional-botao:focus-visible,
+.regional-item:focus-visible{outline:2px solid var(--tinta-3);outline-offset:2px}
+
+/* ---------- cabeçalho de página ---------- */
+.pagina{display:flex;align-items:flex-start;gap:20px;margin-bottom:22px}
+.pagina h1{font-size:23px}
+.pagina p{margin:5px 0 0;color:var(--texto-fraco);font-size:13.5px;max-width:62ch}
+.pagina-acoes{margin-left:auto;display:flex;gap:10px;flex:none}
+
+/* ---------- indicadores ---------- */
+.indicadores{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.ind{background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);padding:16px 17px;box-shadow:var(--sombra)}
+.ind-rot{font-size:12.5px;color:var(--texto-fraco);line-height:1.35;min-height:2.7em}
+.ind-val{font-family:'IBM Plex Serif',serif;font-size:30px;font-weight:600;line-height:1.1;margin-top:8px;font-variant-numeric:tabular-nums}
+.ind-nota{font-size:12px;color:var(--texto-tenue);margin-top:5px}
+.ind.aviso .ind-val{color:var(--alerta)}
+.ind.critico .ind-val{color:var(--risco)}
+
+/* ---------- painéis ---------- */
+.colunas{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;align-items:start}
+.painel{background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);box-shadow:var(--sombra);overflow:hidden}
+.painel-topo{padding:14px 17px;border-bottom:1px solid var(--linha);display:flex;align-items:center;gap:12px}
+.painel-topo h2{font-size:15px}
+.painel-topo .conta{margin-left:auto;font-size:12px;color:var(--texto-tenue);font-variant-numeric:tabular-nums}
+
+.linha-ag{display:flex;align-items:center;gap:13px;padding:11px 17px;border-bottom:1px solid var(--linha)}
+.linha-ag:last-child{border-bottom:0}
+.linha-ag:hover{background:#F7F9FB}
+.ag-nome{font-weight:500;font-size:13.5px}
+.ag-local{font-size:12.5px;color:var(--texto-fraco)}
+.ag-prazo{margin-left:auto;text-align:right;flex:none;font-variant-numeric:tabular-nums}
+.ag-prazo .d{font-size:13px;font-weight:500}
+.ag-prazo .r{font-size:11.5px;color:var(--texto-tenue)}
+.ag-prazo.urgente .d{color:var(--risco)}
+.ag-prazo.proximo .d{color:var(--alerta)}
+
+.marca-pri{
+  font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;flex:none;
+  border:1px solid transparent;
+}
+.pri-alta{background:var(--alerta-fraco);color:var(--alerta);border-color:#EBD9BC}
+.pri-media{background:#EDF1F5;color:var(--texto-fraco);border-color:var(--linha)}
+.pri-baixa{background:transparent;color:var(--texto-tenue);border-color:var(--linha)}
+
+.plan{padding:12px 17px;border-bottom:1px solid var(--linha)}
+.plan:last-child{border-bottom:0}
+.plan-topo{display:flex;align-items:baseline;gap:10px}
+.plan-nome{font-weight:500;font-size:13.5px}
+.plan-estado{margin-left:auto;font-size:11.5px;font-weight:600;padding:2px 7px;border-radius:3px}
+.e-rascunho{background:#EDF1F5;color:var(--texto-fraco)}
+.e-aprovado{background:var(--ganho-fraco);color:var(--ganho)}
+.e-andamento{background:var(--alerta-fraco);color:var(--alerta)}
+.plan-meta{font-size:12.5px;color:var(--texto-fraco);margin-top:3px;font-variant-numeric:tabular-nums}
+
+.rodape-nota{
+  margin-top:22px;padding:13px 16px;background:#E8EDF3;
+  border:1px solid var(--linha);border-radius:var(--raio);
+  font-size:12.5px;color:var(--texto-fraco);max-width:78ch;
+}
+.rodape-nota b{color:var(--texto);font-weight:600}
+
+.emconstrucao{
+  background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);
+  padding:44px;text-align:center;color:var(--texto-fraco);box-shadow:var(--sombra);
+}
+.emconstrucao h2{font-size:17px;color:var(--texto);margin-bottom:7px}
+
+/* ---------- assistente por etapas ---------- */
+.trilho{
+  display:flex;gap:0;background:var(--papel);border:1px solid var(--linha);
+  border-radius:var(--raio);box-shadow:var(--sombra);margin-bottom:20px;overflow:hidden;
+}
+.trilho button{
+  flex:1;display:flex;align-items:center;gap:11px;
+  background:none;border:0;border-right:1px solid var(--linha);
+  padding:13px 16px;text-align:left;min-width:0;
+}
+.trilho button:last-child{border-right:0}
+.trilho button:disabled{cursor:default;opacity:.55}
+.trilho button:not(:disabled):hover{background:#F7F9FB}
+.trilho .bolha{
+  width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;
+  font-size:12px;font-weight:600;border:1.5px solid var(--linha-forte);color:var(--texto-tenue);
+}
+.trilho .rot{font-size:13px;color:var(--texto-fraco);line-height:1.25;min-width:0}
+.trilho .rot b{display:block;font-weight:500;color:var(--texto)}
+.trilho .rot span{font-size:11.5px;color:var(--texto-tenue);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.trilho [data-estado="atual"]{background:#F4F7FA}
+.trilho [data-estado="atual"] .bolha{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.trilho [data-estado="feito"] .bolha{background:var(--ganho-fraco);border-color:#B7DCD2;color:var(--ganho)}
+
+.forma{background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);box-shadow:var(--sombra)}
+.forma-corpo{padding:20px 22px}
+.forma-rodape{
+  padding:14px 22px;border-top:1px solid var(--linha);background:#FAFBFD;
+  display:flex;align-items:center;gap:12px;border-radius:0 0 var(--raio) var(--raio);
+}
+.forma-rodape .direita{margin-left:auto;display:flex;gap:10px;align-items:center}
+.forma-rodape .resumo{font-size:12.5px;color:var(--texto-fraco)}
+
+.campo{margin-bottom:20px}
+.campo:last-child{margin-bottom:0}
+.campo > label{display:block;font-size:13px;font-weight:500;margin-bottom:4px}
+.campo .dica{font-size:12.5px;color:var(--texto-fraco);margin:0 0 9px}
+.entrada{
+  padding:8px 11px;border:1px solid var(--linha-forte);border-radius:var(--raio);
+  background:var(--papel);outline:0;width:100%;
+}
+.entrada:focus{border-color:var(--tinta-3);box-shadow:0 0 0 3px rgba(44,78,110,.12)}
+.par{display:grid;grid-template-columns:180px 180px 1fr;gap:14px;align-items:end}
+.par .aviso-periodo{font-size:12.5px;color:var(--texto-fraco);padding-bottom:9px}
+.par .aviso-periodo.ruim{color:var(--risco)}
+
+.opcoes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opcao{
+  display:flex;gap:11px;align-items:flex-start;
+  border:1px solid var(--linha-forte);border-radius:var(--raio);padding:13px 15px;
+  background:var(--papel);text-align:left;
+}
+.opcao:hover{border-color:var(--tinta-3)}
+.opcao[aria-pressed="true"]{border-color:var(--tinta);box-shadow:0 0 0 1px var(--tinta)}
+.opcao .marca-radio{
+  width:16px;height:16px;border-radius:50%;border:1.5px solid var(--linha-forte);
+  flex:none;margin-top:2px;display:grid;place-items:center;
+}
+.opcao[aria-pressed="true"] .marca-radio{border-color:var(--tinta)}
+.opcao[aria-pressed="true"] .marca-radio::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--tinta)}
+.opcao .t{font-size:13.5px;font-weight:500}
+.opcao .s{font-size:12.5px;color:var(--texto-fraco);margin-top:2px}
+
+/* ---------- seleção de agências ---------- */
+.filtros{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.filtros .busca{flex:1;min-width:220px}
+.filtros select{padding:8px 10px;border:1px solid var(--linha-forte);border-radius:var(--raio);background:var(--papel)}
+.atalhos{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.atalho{
+  background:var(--papel);border:1px dashed var(--linha-forte);border-radius:var(--raio);
+  padding:6px 11px;font-size:12.5px;color:var(--texto-fraco);
+}
+.atalho:hover{border-style:solid;border-color:var(--tinta-3);color:var(--texto)}
+
+.tabela{border:1px solid var(--linha);border-radius:var(--raio);overflow:hidden;background:var(--papel)}
+.tabela-topo{
+  display:flex;align-items:center;gap:12px;padding:10px 15px;
+  background:#F4F7FA;border-bottom:1px solid var(--linha);font-size:12.5px;color:var(--texto-fraco);
+}
+.tabela-corpo{max-height:min(52vh,520px);overflow:auto}
+.item-ag{display:flex;align-items:center;gap:13px;padding:10px 15px;border-bottom:1px solid var(--linha);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left}
+.item-ag:last-child{border-bottom:0}
+.item-ag:hover{background:#F7F9FB}
+.item-ag[aria-pressed="true"]{background:var(--ganho-fraco)}
+.item-ag[aria-pressed="true"]:hover{background:#DAEBE5}
+.caixa{
+  width:17px;height:17px;border-radius:3px;border:1.5px solid var(--linha-forte);
+  flex:none;display:grid;place-items:center;background:var(--papel);
+}
+.item-ag[aria-pressed="true"] .caixa{background:var(--ganho);border-color:var(--ganho)}
+.caixa svg{width:11px;height:11px;color:#fff;display:none}
+.item-ag[aria-pressed="true"] .caixa svg{display:block}
+.item-ag .corpo{min-width:0;flex:1}
+.item-ag .n{font-size:13.5px;font-weight:500}
+.item-ag .l{font-size:12.5px;color:var(--texto-fraco)}
+.item-ag .dir{text-align:right;flex:none;font-variant-numeric:tabular-nums}
+.item-ag .dir .d{font-size:12.5px}
+.item-ag .dir .r{font-size:11.5px;color:var(--texto-tenue)}
+.item-ag .dir.urgente .d{color:var(--risco);font-weight:500}
+.item-ag .dir.proximo .d{color:var(--alerta)}
+.dist{font-size:11.5px;color:var(--texto-tenue);font-variant-numeric:tabular-nums;flex:none;width:64px;text-align:right}
+
+.erro-forma{
+  margin-top:14px;padding:10px 14px;border-radius:var(--raio);
+  background:#FBECEA;border:1px solid #EFC9C4;color:var(--risco);font-size:13px;
+}
+
+/* ---------- restrições ---------- */
+.grade-campos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 26px}
+.campo-linha{display:flex;align-items:center;gap:10px}
+.campo-linha .entrada{width:92px;text-align:center}
+.campo-linha .un{font-size:13px;color:var(--texto-fraco)}
+.divisor{height:1px;background:var(--linha);margin:22px 0}
+
+.chaves{display:flex;flex-wrap:wrap;gap:9px}
+.chave{
+  display:flex;align-items:center;gap:9px;background:var(--papel);
+  border:1px solid var(--linha-forte);border-radius:var(--raio);padding:9px 13px;
+}
+.chave:hover{border-color:var(--tinta-3)}
+.chave[aria-pressed="true"]{border-color:var(--tinta);box-shadow:0 0 0 1px var(--tinta);background:#F4F7FA}
+.chave .caixa{width:16px;height:16px}
+.chave[aria-pressed="true"] .caixa{background:var(--tinta);border-color:var(--tinta)}
+.chave[aria-pressed="true"] .caixa svg{display:block}
+.chave .t{font-size:13.5px;font-weight:500}
+.chave .s{font-size:12px;color:var(--texto-fraco)}
+
+.balanco{
+  border:1px solid var(--linha);border-radius:var(--raio);padding:14px 16px;
+  background:#F7F9FB;font-size:13px;
+}
+.balanco.ruim{background:#FBECEA;border-color:#EFC9C4;color:var(--risco)}
+.balanco.folga{background:var(--ganho-fraco);border-color:#B7DCD2}
+.balanco b{font-weight:600}
+
+/* ---------- objetivo ---------- */
+.objetivos{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.obj{
+  border:1px solid var(--linha-forte);border-radius:var(--raio);padding:16px;
+  background:var(--papel);text-align:left;
+}
+.obj:hover{border-color:var(--tinta-3)}
+.obj[aria-pressed="true"]{border-color:var(--tinta);box-shadow:0 0 0 1px var(--tinta)}
+.obj .t{font-family:'IBM Plex Serif',serif;font-size:15px;font-weight:600}
+.obj .s{font-size:12.5px;color:var(--texto-fraco);margin-top:5px;line-height:1.45}
+
+.peso{margin-top:20px;padding:18px 20px;border:1px solid var(--linha);border-radius:var(--raio);background:#F7F9FB}
+.peso-topo{display:flex;align-items:baseline;margin-bottom:12px;font-size:13px}
+.peso-topo .esq{font-weight:500}
+.peso-topo .dir{margin-left:auto;font-weight:500}
+.peso-topo .val{font-variant-numeric:tabular-nums;color:var(--texto-fraco);font-weight:400}
+input[type="range"]{
+  width:100%;appearance:none;height:5px;border-radius:3px;outline:0;
+  background:linear-gradient(90deg,var(--tinta) var(--pos,50%),var(--linha-forte) var(--pos,50%));
+}
+input[type="range"]::-webkit-slider-thumb{
+  appearance:none;width:19px;height:19px;border-radius:50%;
+  background:var(--papel);border:2px solid var(--tinta);cursor:grab;
+  box-shadow:0 1px 3px rgba(18,38,58,.25);
+}
+input[type="range"]::-moz-range-thumb{
+  width:19px;height:19px;border-radius:50%;background:var(--papel);
+  border:2px solid var(--tinta);cursor:grab;
+}
+input[type="range"]:focus-visible{outline:2px solid var(--tinta-3);outline-offset:4px}
+
+.previa{margin-top:20px;border:1px solid var(--linha);border-radius:var(--raio);overflow:hidden}
+.previa-topo{padding:11px 15px;background:#F4F7FA;border-bottom:1px solid var(--linha);font-size:12.5px;color:var(--texto-fraco)}
+.previa-topo b{color:var(--texto);font-weight:600}
+.previa-modais{display:grid;grid-template-columns:repeat(3,1fr)}
+.pm{padding:14px 15px;border-right:1px solid var(--linha)}
+.pm:last-child{border-right:0}
+.pm.vence{background:var(--ganho-fraco)}
+.pm.fora{opacity:.5}
+.pm-topo{display:flex;align-items:center;gap:8px}
+.pm-topo svg{width:17px;height:17px;color:var(--texto-fraco)}
+.pm.vence .pm-topo svg{color:var(--ganho)}
+.pm-nome{font-size:13px;font-weight:500}
+.pm-selo{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--ganho);letter-spacing:.02em}
+.pm-val{font-family:'IBM Plex Serif',serif;font-size:19px;font-weight:600;margin-top:7px;font-variant-numeric:tabular-nums}
+.pm-sub{font-size:12px;color:var(--texto-fraco);font-variant-numeric:tabular-nums}
+.pm-obs{font-size:11.5px;color:var(--texto-tenue);margin-top:6px;line-height:1.4}
+
+@media (max-width:900px){
+  .grade-campos,.objetivos,.previa-modais{grid-template-columns:1fr}
+  .pm{border-right:0;border-bottom:1px solid var(--linha)}
+}
+
+.aviso-flutuante{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(14px);
+  background:var(--tinta);color:#fff;padding:11px 18px;border-radius:var(--raio);
+  font-size:13.5px;box-shadow:0 8px 26px rgba(18,38,58,.28);
+  opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:60;
+}
+.aviso-flutuante.visivel{opacity:1;transform:translateX(-50%) translateY(0)}
+
+__CSS_RESULTADO__
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:1080px){
+  .app{grid-template-columns:1fr}
+  .lateral{position:static;height:auto;flex-direction:row;align-items:center}
+  .menu{flex-direction:row;flex-wrap:wrap;padding:10px}
+  .marca,.usuario{border:0}
+  .indicadores{grid-template-columns:repeat(2,1fr)}
+  .colunas{grid-template-columns:1fr}
+  .topo{height:auto;padding:12px 18px;flex-wrap:wrap}
+  .conteudo{padding:18px}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="lateral">
+    <div class="marca">
+      <div class="marca-nome">Roteirização<br>de Visitas</div>
+      <div class="marca-sub">Planejamento de rede</div>
+    </div>
+    <nav class="menu" id="menu"></nav>
+    <div class="usuario">
+      <div class="avatar">RM</div>
+      <div>
+        <div class="usuario-nome">Rafael Menezes</div>
+        <div class="usuario-papel">Gerente regional</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="principal">
+    <header class="topo">
+      <div class="trilha" id="trilha"></div>
+      <div class="regional" id="regional"></div>
+      <button class="btn btn-principal" id="btn-novo">Novo planejamento</button>
+    </header>
+    <main class="conteudo" id="conteudo"></main>
+  </div>
+</div>
+
+<div class="aviso-flutuante" id="aviso"></div>
+
+<script>
+/* =====================================================================
+   CAMADA DE DADOS
+   Tudo o que a interface consome sai de DADOS. Para trocar o mock por
+   uma API real, basta substituir este objeto por uma resposta com o
+   mesmo formato: as telas não precisam mudar.
+
+   REAL      agências, coordenadas, regionais (Bacen + k-means)
+   SIMULADO  prioridade, data limite, última visita, planejamentos
+   ===================================================================== */
+const DADOS = __DADOS__;
+
+/* =====================================================================
+   MOTOR DE CÁLCULO
+   Porte de decisao_transporte.py. Fórmulas e parâmetros calibrados com
+   ANP, ANTT e ANAC. Os parâmetros vêm de DADOS.parametros.
+   ===================================================================== */
+__MOTOR__
+
+/* ===================================================================== */
+
+const HOJE = new Date(DADOS.geradoEm + "T00:00:00");
+
+const estado = {
+  tela: "painel",
+  regional: null,
+  plano: null,
+  roteiro: null,
+  expandido: null,
+  fase: 0,
+  salvos: [],
+  temArmazem: false,
+  mapa: null,
+  mapaAg: null,
+  agenciaFoco: null,
+  filtroAgencias: { texto: "", uf: "", municipio: "", prioridade: "" },
+};
+
+/* ---------- utilidades ---------- */
+const $ = (sel, raiz = document) => raiz.querySelector(sel);
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+const dias = (iso) =>
+  Math.round((new Date(iso + "T00:00:00") - HOJE) / 86400000);
+
+const dataBR = (iso) => {
+  const [a, m, d] = iso.split("-");
+  return `${d}/${m}/${a}`;
+};
+
+const plural = (n, um, muitos) => `${n} ${n === 1 ? um : muitos}`;
+
+const dinheiro = (v) =>
+  "R$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const duracao = (min) => {
+  const m = Math.round(min);
+  const h = Math.floor(m / 60);
+  return h ? `${h}h ${String(m % 60).padStart(2, "0")}min` : `${m}min`;
+};
+
+function aviso(texto) {
+  const el = $("#aviso");
+  el.textContent = texto;
+  el.classList.add("visivel");
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove("visivel"), 2600);
+}
+
+/* ---------- consultas sobre os dados ---------- */
+const agenciasDa = (regionalId) =>
+  DADOS.agencias.filter((a) => a.regional === regionalId);
+
+function resumoRegional(regionalId) {
+  const ags = agenciasDa(regionalId);
+  const venc30 = ags.filter((a) => dias(a.dataLimite) <= 30);
+  const vencidas = venc30.filter((a) => dias(a.dataLimite) < 0);
+  const semVisita = ags.filter((a) => dias(a.ultimaVisita) < -180);
+  return { ags, venc30, vencidas, semVisita };
+}
+
+/*
+ * Planejamentos recentes são simulados, mas derivados da regional, para
+ * que cada uma tenha os seus e o número não mude a cada carregamento.
+ */
+function planejamentosDe(reg) {
+  const ags = agenciasDa(reg.id);
+  const s = (n) => ((reg.id * 97 + n * 31) % 100) / 100;
+  const modelos = [
+    { rot: "Ciclo trimestral", est: "aprovado", txt: "Aprovado" },
+    { rot: "Visitas prioritárias", est: "andamento", txt: "Em andamento" },
+    { rot: "Cobertura do interior", est: "rascunho", txt: "Rascunho" },
+  ];
+  return modelos.map((m, i) => {
+    const qtd = 3 + Math.floor(s(i) * 5);
+    const inicio = new Date(HOJE);
+    inicio.setDate(inicio.getDate() + Math.floor(s(i + 5) * 40) - 12);
+    return {
+      nome: m.rot,
+      estado: m.est,
+      rotulo: m.txt,
+      agencias: Math.min(qtd, ags.length),
+      dias: 2 + Math.floor(s(i + 9) * 4),
+      inicio: inicio.toISOString().slice(0, 10),
+      custo: 480 + Math.round(s(i + 3) * 2600),
+    };
+  });
+}
+
+/* ---------- menu lateral ---------- */
+const ITENS = [
+  { id: "painel", rot: "Painel", d: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" },
+  { id: "planejamentos", rot: "Planejamentos", d: "M4 4h16v16H4zM8 9h8M8 13h8M8 17h5" },
+  { id: "agencias", rot: "Agências", d: "M3 21h18M5 21V9l7-5 7 5v12M10 21v-6h4v6" },
+];
+
+function pintarMenu() {
+  $("#menu").innerHTML = ITENS.map((i) => `
+    <button data-tela="${i.id}" ${estado.tela === i.id ? 'aria-current="page"' : ""}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round"><path d="${i.d}"/></svg>
+      ${i.rot}
+    </button>`).join("");
+
+  $("#menu").querySelectorAll("button").forEach((b) => {
+    b.onclick = () => irPara(b.dataset.tela);
+  });
+}
+
+/* ---------- seletor de regional ---------- */
+function pintarRegional() {
+  const r = estado.regional;
+  $("#regional").innerHTML = `
+    <button class="regional-botao" id="regional-botao" aria-haspopup="listbox" aria-expanded="false">
+      <span>
+        <span class="regional-rot">Regional</span>
+        <span class="regional-val">${esc(r.nome)}</span>
+      </span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="regional-lista" id="regional-lista" role="listbox">
+      <div class="regional-busca">
+        <input type="text" id="regional-busca" placeholder="Buscar entre ${DADOS.regionais.length} regionais"
+               autocomplete="off">
+      </div>
+      <div class="regional-itens" id="regional-itens"></div>
+    </div>`;
+
+  const lista = $("#regional-lista");
+  const botao = $("#regional-botao");
+
+  const itens = (filtro = "") => {
+    const f = filtro.trim().toLowerCase();
+    const achados = DADOS.regionais.filter(
+      (x) => !f || x.nome.toLowerCase().includes(f) ||
+             x.ufs.join(" ").toLowerCase().includes(f) ||
+             x.sede.municipio.toLowerCase().includes(f)
+    );
+    $("#regional-itens").innerHTML = achados.length
+      ? achados.map((x) => `
+          <button class="regional-item" data-id="${x.id}" role="option"
+                  aria-selected="${x.id === r.id}">
+            <span class="n">${esc(x.nome)}</span>
+            <span class="d">${plural(x.agencias, "agência", "agências")} · ${x.ufs.join(", ")} · ${x.extensaoKm} km de extensão</span>
+          </button>`).join("")
+      : `<div class="vazio">Nenhuma regional encontrada.</div>`;
+
+    $("#regional-itens").querySelectorAll("button").forEach((b) => {
+      b.onclick = () => {
+        estado.regional = DADOS.regionais.find((x) => x.id === +b.dataset.id);
+        // o planejamento pertence a uma regional: trocar de regional recomeça
+        if (estado.plano) estado.plano = novoPlano();
+        estado.mapaAg = null;
+        estado.agenciaFoco = null;
+        fechar();
+        pintarRegional();
+        pintarTela();
+      };
+    });
+  };
+
+  const abrir = () => {
+    lista.classList.add("aberta");
+    botao.setAttribute("aria-expanded", "true");
+    itens();
+    $("#regional-busca").focus();
+  };
+  const fechar = () => {
+    lista.classList.remove("aberta");
+    botao.setAttribute("aria-expanded", "false");
+  };
+
+  botao.onclick = () => (lista.classList.contains("aberta") ? fechar() : abrir());
+  $("#regional-busca").oninput = (e) => itens(e.target.value);
+  $("#regional-busca").onkeydown = (e) => { if (e.key === "Escape") { fechar(); botao.focus(); } };
+  document.addEventListener("click", (e) => {
+    if (!$("#regional").contains(e.target)) fechar();
+  });
+}
+
+/* ---------- telas ---------- */
+const ETAPAS = [
+  { id: 1, rot: "Origem e período", res: (p) => `${p.origem ? p.origem.municipio + "/" + p.origem.uf : "—"} · ${p.dataInicio ? diasPeriodo(p) + " dias" : "—"}` },
+  { id: 2, rot: "Agências a visitar", res: (p) => p.selecionadas.size ? plural(p.selecionadas.size, "selecionada", "selecionadas") : "nenhuma ainda" },
+  { id: 3, rot: "Restrições", res: (p) => `${p.visitasDia}/dia · ${plural(Object.values(p.modais).filter(Boolean).length, "modal", "modais")}` },
+  { id: 4, rot: "Objetivo da rota", res: (p) => ({ custo: "menor custo", tempo: "menor tempo",
+      equilibrio: `equilíbrio ${Math.round(p.pesoCusto * 100)}/${Math.round((1 - p.pesoCusto) * 100)}` }[p.objetivo]) },
+];
+
+function diasPeriodo(p) {
+  if (!p.dataInicio || !p.dataFim) return 0;
+  const d = Math.round(
+    (new Date(p.dataFim + "T00:00:00") - new Date(p.dataInicio + "T00:00:00")) / 86400000
+  );
+  return d + 1;
+}
+
+function novoPlano() {
+  const r = estado.regional;
+  const inicio = new Date(HOJE);
+  inicio.setDate(inicio.getDate() + ((8 - inicio.getDay()) % 7 || 7)); // próxima segunda
+  const fim = new Date(inicio);
+  fim.setDate(fim.getDate() + 4);
+  return {
+    regional: r.id,
+    origemTipo: "sede",
+    origem: { municipio: r.sede.municipio, uf: r.sede.uf, lat: r.sede.lat, lon: r.sede.lon },
+    dataInicio: inicio.toISOString().slice(0, 10),
+    dataFim: fim.toISOString().slice(0, 10),
+    selecionadas: new Set(),
+    horaInicio: "09:00",
+    horaFim: "18:00",
+    duracaoVisita: 90,
+    visitasDia: 2,
+    limiteDias: 5,
+    modais: { carro: true, onibus: true, aviao: true },
+    aceitaPernoite: true,
+    priorizarAtrasadas: true,
+    objetivo: "equilibrio",
+    pesoCusto: 0.5,
+    etapa: 1,
+    maiorEtapa: 1,
+    erro: "",
+    filtro: { texto: "", uf: "", municipio: "", prioridade: "", ordem: "prazo" },
+  };
+}
+
+function irPara(tela) {
+  estado.tela = tela;
+  pintarMenu();
+  pintarTela();
+  window.scrollTo(0, 0);
+}
+
+function pintarTela() {
+  const r = estado.regional;
+  const nomes = { painel: "Painel", planejamentos: "Planejamentos",
+                  agencias: "Agências", novo: "Novo planejamento", processando: "Gerando planejamento",
+                  resultado: "Planejamento recomendado" };
+  $("#trilha").innerHTML = `${esc(r.nome)} <span style="color:var(--texto-tenue)">/</span> <b>${nomes[estado.tela]}</b>`;
+
+  if (estado.tela === "painel") return pintarPainel();
+  if (estado.tela === "novo") return pintarAssistente();
+  if (estado.tela === "processando") return pintarProcessamento();
+  if (estado.tela === "resultado") return pintarResultado();
+  if (estado.tela === "planejamentos") return pintarPlanejamentos();
+  if (estado.tela === "agencias") return pintarAgencias();
+  $("#conteudo").innerHTML = `
+    <div class="emconstrucao">
+      <h2>${nomes[estado.tela]}</h2>
+      <p>Esta área entra nas próximas etapas do protótipo.</p>
+    </div>`;
+}
+
+/* ---------- assistente ---------- */
+function pintarAssistente() {
+  const p = estado.plano;
+  const r = estado.regional;
+
+  $("#conteudo").innerHTML = `
+    <div class="pagina">
+      <div>
+        <h1>Novo planejamento</h1>
+        <p>Monte uma viagem de visitas para a regional ${esc(r.nome)}.
+           Você pode voltar e alterar qualquer etapa antes de gerar a rota.</p>
+      </div>
+    </div>
+    <div class="trilho" id="trilho"></div>
+    <div id="etapa"></div>`;
+
+  pintarTrilho();
+  if (p.etapa === 1) pintarEtapaOrigem();
+  else if (p.etapa === 2) pintarEtapaAgencias();
+  else if (p.etapa === 3) pintarEtapaRestricoes();
+  else pintarEtapaObjetivo();
+}
+
+function pintarTrilho() {
+  const p = estado.plano;
+  $("#trilho").innerHTML = ETAPAS.map((e) => {
+    const est = e.id === p.etapa ? "atual" : e.id < p.etapa ? "feito" : "adiante";
+    const liberada = e.id <= Math.max(p.etapa, p.maiorEtapa || 1);
+    return `
+      <button data-etapa="${e.id}" data-estado="${est}" ${liberada ? "" : "disabled"}>
+        <span class="bolha">${est === "feito" ? "&#10003;" : e.id}</span>
+        <span class="rot"><b>${e.rot}</b><span>${esc(e.res(p))}</span></span>
+      </button>`;
+  }).join("");
+
+  $("#trilho").querySelectorAll("button:not(:disabled)").forEach((b) => {
+    b.onclick = () => { estado.plano.etapa = +b.dataset.etapa; estado.plano.erro = ""; pintarAssistente(); };
+  });
+}
+
+/* ----- etapa 3: restrições ----- */
+const ICONES = {
+  carro: "M5 16h14M6 16V9l2-4h8l2 4v7M7.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM16.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z",
+  onibus: "M4 16V6a2 2 0 012-2h12a2 2 0 012 2v10M4 10h16M8 16v2M16 16v2M7.5 13.5h.01M16.5 13.5h.01",
+  aviao: "M21 15l-9-4V5a1.5 1.5 0 10-3 0v6l-6 3v2l6-1.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L12 19v-4.5l9 2.5z",
+};
+
+function capacidade(p) {
+  const nd = diasPeriodo(p);
+  const dias = Math.min(nd, p.limiteDias || nd);
+  return { dias, teto: dias * p.visitasDia, alvo: p.selecionadas.size };
+}
+
+function pintarEtapaRestricoes() {
+  const p = estado.plano;
+  const cap = capacidade(p);
+  const sobra = cap.teto - cap.alvo;
+
+  const classe = sobra < 0 ? "ruim" : sobra >= cap.alvo * 0.5 ? "folga" : "";
+  const recado =
+    sobra < 0
+      ? `A agenda não comporta a seleção: cabem <b>${cap.teto}</b> visitas em ${plural(cap.dias, "dia", "dias")},
+         e há <b>${cap.alvo}</b> agências escolhidas. Aumente o período, eleve as visitas por dia ou reduza a seleção.`
+      : `A agenda comporta até <b>${cap.teto}</b> visitas em ${plural(cap.dias, "dia", "dias")},
+         para <b>${cap.alvo}</b> agências escolhidas.${sobra > 0 ? ` Sobram ${plural(sobra, "vaga", "vagas")} de folga para deslocamento.` : ""}`;
+
+  const modais = [
+    { id: "carro", t: "Carro", s: "combustível e pedágio" },
+    { id: "onibus", t: "Ônibus", s: "linhas rodoviárias" },
+    { id: "aviao", t: "Avião", s: "acima de 150 km" },
+  ];
+
+  $("#etapa").innerHTML = `
+    <div class="forma">
+      <div class="forma-corpo">
+        <div class="grade-campos">
+          <div class="campo">
+            <label>Janela de visita</label>
+            <p class="dica">Horário em que as agências recebem o gerente.</p>
+            <div class="campo-linha">
+              <input type="time" class="entrada num" id="hora-inicio" value="${p.horaInicio}">
+              <span class="un">até</span>
+              <input type="time" class="entrada num" id="hora-fim" value="${p.horaFim}">
+            </div>
+          </div>
+
+          <div class="campo">
+            <label>Duração de cada visita</label>
+            <p class="dica">Tempo dentro da agência, fora o deslocamento.</p>
+            <div class="campo-linha">
+              <input type="number" class="entrada num" id="dur-visita" min="30" max="480" step="15" value="${p.duracaoVisita}">
+              <span class="un">minutos</span>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label>Máximo de visitas por dia</label>
+            <p class="dica">Teto por dia, mesmo que sobre tempo na janela.</p>
+            <div class="campo-linha">
+              <input type="number" class="entrada num" id="visitas-dia" min="1" max="8" value="${p.visitasDia}">
+              <span class="un">por dia</span>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label>Limite de dias de viagem</label>
+            <p class="dica">Pode ser menor que o período informado na etapa 1.</p>
+            <div class="campo-linha">
+              <input type="number" class="entrada num" id="limite-dias" min="1" max="${diasPeriodo(p)}" value="${p.limiteDias}">
+              <span class="un">de ${plural(diasPeriodo(p), "dia", "dias")}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divisor"></div>
+
+        <div class="campo">
+          <label>Meios de transporte permitidos</label>
+          <p class="dica">O sistema só considera os modais liberados aqui.</p>
+          <div class="chaves">
+            ${modais.map((m) => `
+              <button class="chave" data-modal="${m.id}" aria-pressed="${p.modais[m.id]}">
+                <span class="caixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+                <span><span class="t">${m.t}</span><span class="s"> ${m.s}</span></span>
+              </button>`).join("")}
+          </div>
+        </div>
+
+        <div class="campo">
+          <label>Regras adicionais</label>
+          <div class="chaves">
+            <button class="chave" data-regra="pernoite" aria-pressed="${p.aceitaPernoite}">
+              <span class="caixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+              <span><span class="t">Aceita pernoite</span><span class="s"> viagens que passam a noite fora</span></span>
+            </button>
+            <button class="chave" data-regra="atrasadas" aria-pressed="${p.priorizarAtrasadas}">
+              <span class="caixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+              <span><span class="t">Priorizar prazos vencidos</span><span class="s"> visita antes quem está em atraso</span></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="divisor"></div>
+        <div class="balanco ${classe}">${recado}</div>
+        ${p.erro ? `<div class="erro-forma">${esc(p.erro)}</div>` : ""}
+      </div>
+
+      <div class="forma-rodape">
+        <button class="btn" id="voltar">Voltar</button>
+        <div class="direita">
+          <button class="btn btn-principal" id="avancar">Escolher objetivo</button>
+        </div>
+      </div>
+    </div>`;
+
+  const numero = (id, campo, min, max) => {
+    $(id).onchange = (e) => {
+      let v = parseInt(e.target.value, 10);
+      if (isNaN(v)) v = min;
+      p[campo] = Math.max(min, Math.min(max, v));
+      p.erro = "";
+      pintarTrilho();
+      pintarEtapaRestricoes();
+    };
+  };
+  numero("#dur-visita", "duracaoVisita", 30, 480);
+  numero("#visitas-dia", "visitasDia", 1, 8);
+  numero("#limite-dias", "limiteDias", 1, diasPeriodo(p));
+
+  $("#hora-inicio").onchange = (e) => { p.horaInicio = e.target.value; pintarEtapaRestricoes(); };
+  $("#hora-fim").onchange = (e) => { p.horaFim = e.target.value; pintarEtapaRestricoes(); };
+
+  $("#etapa").querySelectorAll("[data-modal]").forEach((b) => {
+    b.onclick = () => {
+      const m = b.dataset.modal;
+      const ligados = Object.values(p.modais).filter(Boolean).length;
+      if (p.modais[m] && ligados === 1) {
+        p.erro = "Pelo menos um meio de transporte precisa continuar liberado.";
+      } else {
+        p.modais[m] = !p.modais[m];
+        p.erro = "";
+      }
+      pintarEtapaRestricoes();
+    };
+  });
+
+  $("#etapa").querySelectorAll("[data-regra]").forEach((b) => {
+    b.onclick = () => {
+      const k = b.dataset.regra === "pernoite" ? "aceitaPernoite" : "priorizarAtrasadas";
+      p[k] = !p[k];
+      pintarEtapaRestricoes();
+    };
+  });
+
+  $("#voltar").onclick = () => { p.etapa = 2; pintarAssistente(); };
+  $("#avancar").onclick = () => {
+    if (capacidade(p).teto < p.selecionadas.size) {
+      p.erro = "Ajuste o período, as visitas por dia ou a seleção antes de continuar.";
+      return pintarEtapaRestricoes();
+    }
+    p.etapa = 4;
+    p.maiorEtapa = 4;
+    pintarAssistente();
+  };
+}
+
+/* ----- etapa 4: objetivo ----- */
+const OBJETIVOS = [
+  { id: "custo", t: "Menor custo", peso: 1,
+    s: "Escolhe sempre a opção mais barata, mesmo que a viagem fique mais longa." },
+  { id: "tempo", t: "Menor tempo", peso: 0,
+    s: "Escolhe a opção mais rápida, mesmo que custe mais." },
+  { id: "equilibrio", t: "Equilíbrio", peso: null,
+    s: "Pondera custo e tempo na proporção que você definir abaixo." },
+];
+
+function pesoAtual(p) {
+  const o = OBJETIVOS.find((x) => x.id === p.objetivo);
+  return o.peso === null ? p.pesoCusto : o.peso;
+}
+
+/* O trecho mais longo da seleção é o que melhor mostra o efeito do peso:
+   é onde os três modais têm chance real de disputar. */
+function trechoDemonstrativo(p) {
+  const sel = DADOS.agencias.filter((a) => p.selecionadas.has(a.id));
+  let melhor = null;
+  const pontos = [{ ...p.origem, nome: p.origem.municipio }, ...sel];
+  for (let i = 0; i < pontos.length; i++) {
+    for (let j = i + 1; j < pontos.length; j++) {
+      const d = distanciaKm(pontos[i], pontos[j]);
+      if (!melhor || d > melhor.d) melhor = { d, a: pontos[i], b: pontos[j] };
+    }
+  }
+  return melhor;
+}
+
+function pintarEtapaObjetivo() {
+  const p = estado.plano;
+  const peso = pesoAtual(p);
+  const t = trechoDemonstrativo(p);
+  const r = compararModais(t.a, t.b, DADOS.parametros, peso);
+
+  const pm = (modal) => {
+    const o = r.opcoes.find((x) => x.modal === modal);
+    const permitido = p.modais[modal];
+    const vence = r.recomendado === modal && permitido && o.disponivel;
+    const nomes = { carro: "Carro", onibus: "Ônibus", aviao: "Avião" };
+    return `
+      <div class="pm ${vence ? "vence" : ""} ${!permitido || !o.disponivel ? "fora" : ""}">
+        <div class="pm-topo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+               stroke-linecap="round" stroke-linejoin="round"><path d="${ICONES[modal]}"/></svg>
+          <span class="pm-nome">${nomes[modal]}</span>
+          ${vence ? '<span class="pm-selo">RECOMENDADO</span>' : ""}
+        </div>
+        ${o.disponivel
+          ? `<div class="pm-val">${dinheiro(o.custo)}</div>
+             <div class="pm-sub">${duracao(o.minutos)} · ${Math.round(o.distanciaKm)} km</div>`
+          : `<div class="pm-val" style="color:var(--texto-tenue)">—</div>
+             <div class="pm-sub">indisponível</div>`}
+        <div class="pm-obs">${
+          !permitido ? "Desativado nas restrições."
+          : o.observacao || (o.disponivel ? "" : "")}</div>
+      </div>`;
+  };
+
+  $("#etapa").innerHTML = `
+    <div class="forma">
+      <div class="forma-corpo">
+        <div class="campo">
+          <label>O que a rota deve otimizar</label>
+          <p class="dica">Define como o sistema desempata entre as opções de transporte de cada trecho.</p>
+          <div class="objetivos">
+            ${OBJETIVOS.map((o) => `
+              <button class="obj" data-obj="${o.id}" aria-pressed="${p.objetivo === o.id}">
+                <div class="t">${o.t}</div>
+                <div class="s">${o.s}</div>
+              </button>`).join("")}
+          </div>
+        </div>
+
+        ${p.objetivo === "equilibrio" ? `
+          <div class="peso">
+            <div class="peso-topo">
+              <span class="esq">Custo <span class="val">${Math.round(p.pesoCusto * 100)}%</span></span>
+              <span class="dir"><span class="val">${Math.round((1 - p.pesoCusto) * 100)}%</span> Tempo</span>
+            </div>
+            <input type="range" id="peso" min="0" max="100" step="5"
+                   value="${Math.round(p.pesoCusto * 100)}"
+                   style="--pos:${Math.round(p.pesoCusto * 100)}%"
+                   aria-label="Peso entre custo e tempo">
+          </div>` : ""}
+
+        <div class="previa">
+          <div class="previa-topo">
+            Prévia no trecho mais longo da sua seleção:
+            <b>${esc(t.a.nome || t.a.municipio)} &rarr; ${esc(t.b.nome || t.b.municipio)}</b>,
+            ${Math.round(r.distanciaLinhaRetaKm)} km em linha reta
+          </div>
+          <div class="previa-modais">${pm("carro")}${pm("onibus")}${pm("aviao")}</div>
+        </div>
+
+        <p class="dica" style="margin-top:13px">
+          Valores estimados pelo modelo calibrado com ${esc(DADOS.parametros.fontes.combustivel)},
+          ${esc(DADOS.parametros.fontes.onibus)} e ${esc(DADOS.parametros.fontes.aviao)}.
+        </p>
+      </div>
+
+      <div class="forma-rodape">
+        <button class="btn" id="voltar">Voltar</button>
+        <div class="direita">
+          <span class="resumo">${plural(p.selecionadas.size, "agência", "agências")} ·
+            ${plural(capacidade(p).dias, "dia", "dias")}</span>
+          <button class="btn btn-principal" id="gerar">Gerar planejamento</button>
+        </div>
+      </div>
+    </div>`;
+
+  $("#etapa").querySelectorAll("[data-obj]").forEach((b) => {
+    b.onclick = () => { p.objetivo = b.dataset.obj; pintarTrilho(); pintarEtapaObjetivo(); };
+  });
+
+  const faixa = $("#peso");
+  if (faixa) {
+    faixa.oninput = (e) => {
+      p.pesoCusto = +e.target.value / 100;
+      e.target.style.setProperty("--pos", e.target.value + "%");
+      pintarEtapaObjetivo();
+      $("#peso").focus();
+    };
+  }
+
+  $("#voltar").onclick = () => { p.etapa = 3; pintarAssistente(); };
+  $("#gerar").onclick = () => processar();
+}
+
+/* ----- etapa 1: origem e período ----- */
+function pintarEtapaOrigem() {
+  const p = estado.plano;
+  const r = estado.regional;
+
+  const municipios = [...new Map(
+    DADOS.agencias.map((a) => [a.municipio + "/" + a.uf, a])
+  ).values()].sort((a, b) => a.municipio.localeCompare(b.municipio, "pt-BR"));
+
+  const nd = diasPeriodo(p);
+  const invertido = nd <= 0;
+
+  $("#etapa").innerHTML = `
+    <div class="forma">
+      <div class="forma-corpo">
+        <div class="campo">
+          <label>Ponto de partida</label>
+          <p class="dica">A rota sai daqui e retorna para cá ao final da viagem.</p>
+          <div class="opcoes">
+            <button class="opcao" data-origem="sede" aria-pressed="${p.origemTipo === "sede"}">
+              <span class="marca-radio"></span>
+              <span>
+                <span class="t">Sede da regional</span>
+                <span class="s">${esc(r.sede.municipio)}/${r.sede.uf}</span>
+              </span>
+            </button>
+            <button class="opcao" data-origem="outro" aria-pressed="${p.origemTipo === "outro"}">
+              <span class="marca-radio"></span>
+              <span>
+                <span class="t">Outro município</span>
+                <span class="s">quando o gerente parte de outro ponto</span>
+              </span>
+            </button>
+          </div>
+          ${p.origemTipo === "outro" ? `
+            <div style="margin-top:12px;max-width:380px">
+              <select class="entrada" id="origem-municipio">
+                ${municipios.map((m) => `
+                  <option value="${esc(m.municipio)}|${m.uf}" ${
+                    m.municipio === p.origem.municipio && m.uf === p.origem.uf ? "selected" : ""
+                  }>${esc(m.municipio)}/${m.uf}</option>`).join("")}
+              </select>
+            </div>` : ""}
+        </div>
+
+        <div class="campo">
+          <label>Período da viagem</label>
+          <p class="dica">A rota será distribuída dentro dessa janela.</p>
+          <div class="par">
+            <div>
+              <label style="font-weight:400;font-size:12.5px;color:var(--texto-fraco)">Início</label>
+              <input type="date" class="entrada num" id="data-inicio" value="${p.dataInicio}">
+            </div>
+            <div>
+              <label style="font-weight:400;font-size:12.5px;color:var(--texto-fraco)">Fim</label>
+              <input type="date" class="entrada num" id="data-fim" value="${p.dataFim}">
+            </div>
+            <div class="aviso-periodo ${invertido ? "ruim" : ""}">
+              ${invertido ? "A data final precisa ser igual ou posterior à inicial."
+                          : plural(nd, "dia disponível", "dias disponíveis")}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="forma-rodape">
+        <button class="btn" id="cancelar">Cancelar</button>
+        <div class="direita">
+          <span class="resumo">${plural(r.agencias, "agência", "agências")} na regional</span>
+          <button class="btn btn-principal" id="avancar" ${invertido ? "disabled" : ""}>
+            Selecionar agências
+          </button>
+        </div>
+      </div>
+    </div>`;
+
+  $("#etapa").querySelectorAll("[data-origem]").forEach((b) => {
+    b.onclick = () => {
+      p.origemTipo = b.dataset.origem;
+      if (p.origemTipo === "sede") {
+        p.origem = { municipio: r.sede.municipio, uf: r.sede.uf, lat: r.sede.lat, lon: r.sede.lon };
+      }
+      pintarAssistente();
+    };
+  });
+
+  const sel = $("#origem-municipio");
+  if (sel) sel.onchange = () => {
+    const [mun, uf] = sel.value.split("|");
+    const a = DADOS.agencias.find((x) => x.municipio === mun && x.uf === uf);
+    p.origem = { municipio: mun, uf, lat: a.lat, lon: a.lon };
+    pintarTrilho();
+  };
+
+  $("#data-inicio").onchange = (e) => { p.dataInicio = e.target.value; pintarAssistente(); };
+  $("#data-fim").onchange = (e) => { p.dataFim = e.target.value; pintarAssistente(); };
+  $("#cancelar").onclick = () => { estado.plano = null; irPara("painel"); };
+  $("#avancar").onclick = () => { p.etapa = 2; p.maiorEtapa = Math.max(p.maiorEtapa, 2); pintarAssistente(); };
+}
+
+/* ----- etapa 2: agências ----- */
+function pintarEtapaAgencias() {
+  const p = estado.plano;
+  const r = estado.regional;
+  const todas = agenciasDa(r.id);
+
+  const ufs = [...new Set(todas.map((a) => a.uf))].sort();
+  const muns = [...new Set(todas.map((a) => a.municipio))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  const f = p.filtro;
+  const texto = f.texto.trim().toLowerCase();
+  let lista = todas.filter((a) =>
+    (!texto || a.nome.toLowerCase().includes(texto) || a.municipio.toLowerCase().includes(texto) ||
+      String(a.codigo).includes(texto) || a.bairro.toLowerCase().includes(texto)) &&
+    (!f.uf || a.uf === f.uf) &&
+    (!f.municipio || a.municipio === f.municipio) &&
+    (!f.prioridade || a.prioridade === f.prioridade)
+  );
+
+  const ordens = {
+    prazo: (a, b) => dias(a.dataLimite) - dias(b.dataLimite),
+    distancia: (a, b) => distanciaKm(p.origem, a) - distanciaKm(p.origem, b),
+    nome: (a, b) => a.municipio.localeCompare(b.municipio, "pt-BR") || a.nome.localeCompare(b.nome, "pt-BR"),
+  };
+  lista = lista.sort(ordens[f.ordem]);
+
+  const marcadas = todas.filter((a) => p.selecionadas.has(a.id));
+  const prazoClasse = (d) => (d < 0 ? "urgente" : d <= 30 ? "proximo" : "");
+  const prazoTexto = (d) => (d < 0 ? `${Math.abs(d)} d em atraso` : d === 0 ? "vence hoje" : `em ${d} d`);
+
+  const vencendo = todas.filter((a) => dias(a.dataLimite) <= 30 && !p.selecionadas.has(a.id));
+  const altas = todas.filter((a) => a.prioridade === "alta" && !p.selecionadas.has(a.id));
+
+  $("#etapa").innerHTML = `
+    <div class="forma">
+      <div class="forma-corpo">
+        <div class="filtros">
+          <input type="text" class="entrada busca" id="f-texto" placeholder="Buscar por agência, bairro, cidade ou código" value="${esc(f.texto)}">
+          <select id="f-uf"><option value="">Todos os estados</option>
+            ${ufs.map((u) => `<option ${f.uf === u ? "selected" : ""}>${u}</option>`).join("")}</select>
+          <select id="f-mun"><option value="">Todas as cidades</option>
+            ${muns.map((m) => `<option ${f.municipio === m ? "selected" : ""}>${esc(m)}</option>`).join("")}</select>
+          <select id="f-pri"><option value="">Todas as prioridades</option>
+            <option value="alta" ${f.prioridade === "alta" ? "selected" : ""}>Prioridade alta</option>
+            <option value="media" ${f.prioridade === "media" ? "selected" : ""}>Prioridade média</option>
+            <option value="baixa" ${f.prioridade === "baixa" ? "selected" : ""}>Prioridade baixa</option></select>
+          <select id="f-ordem">
+            <option value="prazo" ${f.ordem === "prazo" ? "selected" : ""}>Ordenar por prazo</option>
+            <option value="distancia" ${f.ordem === "distancia" ? "selected" : ""}>Ordenar por distância</option>
+            <option value="nome" ${f.ordem === "nome" ? "selected" : ""}>Ordenar por cidade</option>
+          </select>
+        </div>
+
+        <div class="atalhos">
+          ${vencendo.length ? `<button class="atalho" data-atalho="vencendo">Adicionar as ${vencendo.length} que vencem em 30 dias</button>` : ""}
+          ${altas.length ? `<button class="atalho" data-atalho="altas">Adicionar as ${altas.length} de prioridade alta</button>` : ""}
+          ${marcadas.length ? `<button class="atalho" data-atalho="limpar">Limpar seleção</button>` : ""}
+        </div>
+
+        <div class="tabela">
+          <div class="tabela-topo">
+            <span>${lista.length === todas.length
+              ? plural(todas.length, "agência na regional", "agências na regional")
+              : `${lista.length} de ${todas.length} agências`}</span>
+            <span style="margin-left:auto">distância a partir de ${esc(p.origem.municipio)}</span>
+          </div>
+          <div class="tabela-corpo">
+            ${lista.length ? lista.map((a) => {
+              const d = dias(a.dataLimite);
+              const km = Math.round(distanciaKm(p.origem, a) * DADOS.parametros.fatorSinuosidade);
+              return `
+              <button class="item-ag" data-id="${a.id}" aria-pressed="${p.selecionadas.has(a.id)}">
+                <span class="caixa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+                <span class="marca-pri pri-${a.prioridade}">${
+                  a.prioridade === "alta" ? "Alta" : a.prioridade === "media" ? "Média" : "Baixa"}</span>
+                <span class="corpo">
+                  <span class="n">${esc(a.nome)}</span>
+                  <span class="l">${esc(a.municipio)}/${a.uf} · agência ${a.codigo}${
+                    a.precisao === "municipio" ? " · localização aproximada" : ""}</span>
+                </span>
+                <span class="dist">${km} km</span>
+                <span class="dir ${prazoClasse(d)}">
+                  <span class="d">${dataBR(a.dataLimite)}</span>
+                  <span class="r">${prazoTexto(d)}</span>
+                </span>
+              </button>`;
+            }).join("") : `<div class="vazio">Nenhuma agência corresponde aos filtros.</div>`}
+          </div>
+        </div>
+
+        ${p.erro ? `<div class="erro-forma">${esc(p.erro)}</div>` : ""}
+      </div>
+
+      <div class="forma-rodape">
+        <button class="btn" id="voltar">Voltar</button>
+        <div class="direita">
+          <span class="resumo">${
+            marcadas.length
+              ? `${plural(marcadas.length, "agência selecionada", "agências selecionadas")} em ${
+                  plural(new Set(marcadas.map((a) => a.municipio)).size, "cidade", "cidades")}`
+              : "Selecione ao menos duas agências"}</span>
+          <button class="btn btn-principal" id="avancar">Definir restrições</button>
+        </div>
+      </div>
+    </div>`;
+
+  const repintar = () => { pintarTrilho(); pintarEtapaAgencias(); };
+
+  $("#f-texto").oninput = (e) => {
+    f.texto = e.target.value;
+    const pos = e.target.selectionStart;
+    pintarEtapaAgencias();
+    const campo = $("#f-texto");
+    campo.focus();
+    campo.setSelectionRange(pos, pos);
+  };
+  $("#f-uf").onchange = (e) => { f.uf = e.target.value; f.municipio = ""; repintar(); };
+  $("#f-mun").onchange = (e) => { f.municipio = e.target.value; repintar(); };
+  $("#f-pri").onchange = (e) => { f.prioridade = e.target.value; repintar(); };
+  $("#f-ordem").onchange = (e) => { f.ordem = e.target.value; repintar(); };
+
+  $("#etapa").querySelectorAll(".item-ag").forEach((b) => {
+    b.onclick = () => {
+      const id = b.dataset.id;
+      p.selecionadas.has(id) ? p.selecionadas.delete(id) : p.selecionadas.add(id);
+      p.erro = "";
+      repintar();
+    };
+  });
+
+  $("#etapa").querySelectorAll("[data-atalho]").forEach((b) => {
+    b.onclick = () => {
+      const q = b.dataset.atalho;
+      if (q === "limpar") p.selecionadas.clear();
+      if (q === "vencendo") vencendo.forEach((a) => p.selecionadas.add(a.id));
+      if (q === "altas") altas.forEach((a) => p.selecionadas.add(a.id));
+      p.erro = "";
+      repintar();
+    };
+  });
+
+  $("#voltar").onclick = () => { p.etapa = 1; pintarAssistente(); };
+  $("#avancar").onclick = () => {
+    if (p.selecionadas.size < 2) {
+      p.erro = "Escolha pelo menos duas agências para que exista uma rota a otimizar.";
+      return repintar();
+    }
+    p.etapa = 3;
+    p.maiorEtapa = Math.max(p.maiorEtapa, 3);
+    p.limiteDias = Math.min(p.limiteDias, diasPeriodo(p));
+    pintarAssistente();
+  };
+}
+
+function pintarPainel() {
+  const r = estado.regional;
+  const { ags, venc30, vencidas, semVisita } = resumoRegional(r.id);
+
+  const proximas = [...ags]
+    .sort((a, b) => dias(a.dataLimite) - dias(b.dataLimite))
+    .slice(0, 8);
+
+  const planos = planejamentosDe(r);
+
+  const prazoClasse = (d) => (d < 0 ? "urgente" : d <= 30 ? "proximo" : "");
+  const prazoTexto = (d) =>
+    d < 0 ? `${Math.abs(d)} d em atraso` : d === 0 ? "vence hoje" : `em ${d} d`;
+
+  $("#conteudo").innerHTML = `
+    <div class="pagina">
+      <div>
+        <h1>${esc(r.nome)}</h1>
+        <p>${plural(r.agencias, "agência", "agências")} em ${plural(r.municipios, "município", "municípios")}
+           (${r.ufs.join(", ")}), com ${r.extensaoKm} km entre os pontos mais distantes.
+           Sede em ${esc(r.sede.municipio)}.</p>
+      </div>
+      <div class="pagina-acoes">
+        <button class="btn" data-acao="ver-agencias">Ver agências</button>
+      </div>
+    </div>
+
+    <div class="indicadores">
+      <div class="ind">
+        <div class="ind-rot">Agências sob responsabilidade</div>
+        <div class="ind-val num">${r.agencias}</div>
+        <div class="ind-nota">${plural(r.municipios, "município", "municípios")}</div>
+      </div>
+      <div class="ind ${venc30.length ? "aviso" : ""}">
+        <div class="ind-rot">Visitas a vencer nos próximos 30 dias</div>
+        <div class="ind-val num">${venc30.length}</div>
+        <div class="ind-nota">${venc30.length ? "exigem planejamento agora" : "nenhuma pendência imediata"}</div>
+      </div>
+      <div class="ind ${vencidas.length ? "critico" : ""}">
+        <div class="ind-rot">Visitas com prazo vencido</div>
+        <div class="ind-val num">${vencidas.length}</div>
+        <div class="ind-nota">${vencidas.length ? "acumulam atraso" : "em dia"}</div>
+      </div>
+      <div class="ind">
+        <div class="ind-rot">Sem visita há mais de 6 meses</div>
+        <div class="ind-val num">${semVisita.length}</div>
+        <div class="ind-nota">de ${r.agencias} agências</div>
+      </div>
+    </div>
+
+    <div class="colunas">
+      <section class="painel">
+        <div class="painel-topo">
+          <h2>Próximas a vencer</h2>
+          <span class="conta">${proximas.length} de ${r.agencias}</span>
+        </div>
+        ${proximas.map((a) => {
+          const d = dias(a.dataLimite);
+          return `
+          <div class="linha-ag">
+            <span class="marca-pri pri-${a.prioridade}">${
+              a.prioridade === "alta" ? "Alta" : a.prioridade === "media" ? "Média" : "Baixa"
+            }</span>
+            <div>
+              <div class="ag-nome">${esc(a.nome)}</div>
+              <div class="ag-local">${esc(a.municipio)}/${a.uf} · agência ${a.codigo}</div>
+            </div>
+            <div class="ag-prazo ${prazoClasse(d)}">
+              <div class="d">${dataBR(a.dataLimite)}</div>
+              <div class="r">${prazoTexto(d)}</div>
+            </div>
+          </div>`;
+        }).join("")}
+      </section>
+
+      <section class="painel">
+        <div class="painel-topo"><h2>Planejamentos recentes</h2></div>
+        ${planos.map((p) => `
+          <div class="plan">
+            <div class="plan-topo">
+              <span class="plan-nome">${p.nome}</span>
+              <span class="plan-estado e-${p.estado}">${p.rotulo}</span>
+            </div>
+            <div class="plan-meta">
+              ${plural(p.agencias, "agência", "agências")} · ${plural(p.dias, "dia", "dias")} ·
+              início ${dataBR(p.inicio)} · R$ ${p.custo.toLocaleString("pt-BR")}
+            </div>
+          </div>`).join("")}
+      </section>
+    </div>
+
+    <p class="rodape-nota">
+      <b>Origem dos dados.</b> Agências, endereços e localização vêm da base pública do
+      Banco Central (${esc(DADOS.parametros.fontes.agencias)}). As regionais foram formadas
+      por agrupamento geográfico das agências, com teto de 40 por regional.
+      Prioridade, data limite e última visita são dados de planejamento, simulados neste
+      protótipo por não existirem em base pública.
+    </p>`;
+
+  $("#conteudo").querySelector('[data-acao="ver-agencias"]').onclick = () => irPara("agencias");
+}
+
+__ROTEIRO__
+
+__MAPA__
+
+__TELAS__
+
+__EXTRAS__
+
+/* ---------- início ---------- */
+estado.regional = DADOS.regionais.find((r) => r.nome.startsWith("Goiânia")) || DADOS.regionais[0];
+$("#btn-novo").onclick = () => { estado.plano = novoPlano(); irPara("novo"); };
+estado.salvos = carregarSalvos();
+pintarMenu();
+pintarRegional();
+pintarTela();
+</script>
+</body>
+</html>
