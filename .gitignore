@@ -1,0 +1,23 @@
+# Bases brutas: pesadas e obtidas nas fontes oficiais, não versionadas.
+# Veja dados/brutos/LEIA-ME.md para saber onde baixar cada uma.
+dados/brutos/*
+!dados/brutos/LEIA-ME.md
+
+# Arquivos intermediários gerados pelo pipeline
+dados/*.csv
+dados/*.json
+dados/*.geojson
+
+# O produto final é gerado pela etapa 05
+produto/roteirizacao-visitas.html
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
