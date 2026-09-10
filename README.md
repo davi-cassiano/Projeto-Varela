@@ -65,10 +65,9 @@ O funcionamento esperado da ferramenta é:
 1. O usuário informa sua origem.
 2. Seleciona as agências que precisam ser visitadas.
 3. Informa o período disponível para as visitas.
-4. Define se deseja priorizar custo, tempo ou ambos.
-5. O sistema consulta os dados necessários para os deslocamentos.
-6. O algoritmo calcula as possíveis rotas.
-7. A ferramenta apresenta a rota recomendada.
+4. O sistema consulta os dados necessários para os deslocamentos.
+5. O algoritmo calcula as possíveis rotas.
+6. A ferramenta apresenta a rota recomendada.
 
 A resposta deverá mostrar a ordem das agências, o meio de transporte recomendado, o tempo e o custo de cada trecho e os valores totais da viagem.
 
