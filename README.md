@@ -87,7 +87,7 @@ Entre os dados necessários para o funcionamento do projeto estão:
 
 Para o carro, o custo poderá ser estimado a partir da distância percorrida, combustível, pedágios e regras de reembolso. Para ônibus e avião, poderão ser utilizadas fontes de preços de passagens.
 
-## ## Datasets e Fontes de Dados
+## Datasets e Fontes de Dados
 
 Até o momento, os datasets e fontes de dados utilizados no projeto são:
 
