@@ -22,3 +22,6 @@ venv/
 # Sistema operacional
 .DS_Store
 Thumbs.db
+
+# clone feito pela Parte 3 do notebook quando roda localmente
+notebooks/Projeto-Varela/
