@@ -56,15 +56,18 @@ Por decisão de escopo, ficaram fora desta entrega:
 **K-means — aprendizado não supervisionado.** Agrupa as agências pelas
 coordenadas para formar as regionais. Nenhuma regra geográfica é escrita à mão:
 as cidades-polo emergem dos agrupamentos. Sobre o resultado, duas regras de
-produto: teto de 40 e piso de 4 agências por regional, aplicados por subdivisão
-recursiva e absorção de grupos pequenos. Ver `pipeline/03_definir_regionais.py`.
+produto: teto de 40 e piso de 4 agências por regional. Ver `src/train.py`.
 
-**Ajuste de curva de potência — regressão não linear.** Estima custo e tempo de
-cada modal a partir da distância, no formato `custo = a + b × distância^c`, com
-coeficientes calibrados sobre faixas tarifárias reais da ANTT e a tarifa média
-doméstica da ANAC. O custo de carro sai de preço de combustível, consumo e
-pedágio. Ver `pipeline/decisao_transporte.py` e a versão em JavaScript em
-`produto/fonte/motor.js`, validada dígito a dígito contra o original.
+**Regressão Ridge — aprendizado supervisionado (US11).** Estima o preço da
+gasolina em cada estado a partir do preço nacional, da diferença recente do
+estado e do mês, com a série real da ANP. Treino até dezembro de 2019 e teste em
+2020–2021, sem embaralhar as semanas. Erro médio de **R$ 0,095 por litro**,
+contra R$ 0,199 do baseline que usava o mesmo preço para todos os estados —
+52% menos erro. Ver `src/train.py` e `docs/arquitetura.md`.
+
+**Curvas de custo calibradas.** Custo e tempo de ônibus e avião no formato
+`custo = a + b × distância^c`, com coeficientes calibrados sobre faixas
+tarifárias da ANTT e a tarifa média da ANAC. Ver `src/serve.py`.
 
 Nenhum modelo generativo é usado pelo sistema. O produto final funciona offline,
 sem chamar nenhum serviço externo.
@@ -75,8 +78,8 @@ sem chamar nenhum serviço externo.
 
 | Base | Fonte | Papel no projeto |
 | --- | --- | --- |
-| Agências bancárias em funcionamento | Banco Central, posição de 29/11/2024 | Nós da rede de roteirização: 16.552 agências, 2.040 delas do recorte usado |
-| Preços de combustíveis | ANP, série semanal 2004–2021 | Calibração do custo de deslocamento rodoviário |
+| Agências bancárias em funcionamento | Banco Central, posição de 29/11/2024 | Nós da rede de roteirização: 16.552 agências, 2.010 do Itaú Unibanco no recorte usado |
+| Preços de combustíveis | ANP, série semanal 2004–2021 | Treino do modelo de preço por estado (US11) |
 | Base consolidada do grupo | Elaborada a partir das duas acima | Coordenadas por município, 73 aeroportos, preços estimados de ônibus e avião |
 
 Bases auxiliares baixadas automaticamente: coordenadas de municípios e bairros,
@@ -89,9 +92,9 @@ obtidas em três níveis, e cada agência registra qual nível foi usado:
 
 | Nível | Como é obtido | Cobertura |
 | --- | --- | --- |
-| `bairro` | cruzamento de município e bairro | 72% |
-| `bairro_aprox` | mesmo cruzamento, com correspondência aproximada para absorver abreviações do cadastro | 3% |
-| `municipio` | centróide pelo código IBGE | 25% |
+| `bairro` | cruzamento de município e bairro | 72,4% |
+| `bairro_aprox` | mesmo cruzamento, com correspondência aproximada para absorver abreviações do cadastro | 2,3% |
+| `municipio` | centróide pelo código IBGE | 25,3% |
 
 A base pública de bairros contém colisão de nomes — o bairro Mirandópolis, na
 capital paulista, recebe as coordenadas da cidade de Mirandópolis, a 530 km. O
@@ -129,15 +132,30 @@ naquela pasta.
 
 ### Pipeline
 
-Execute as cinco etapas na ordem, a partir da raiz do projeto:
+Um comando roda tudo, a partir da raiz do projeto:
 
 ```bash
-python pipeline/01_baixar_bases.py          # bases auxiliares e geometria
-python pipeline/02_enriquecer_coordenadas.py # coordenadas em três níveis
-python pipeline/03_definir_regionais.py      # k-means com teto e piso
-python pipeline/04_gerar_dados.py            # pacote de dados do produto
-python pipeline/05_montar_produto.py         # gera o HTML final
+python -m src.pipeline
 ```
+
+São quatro estágios, cada um num módulo com responsabilidade única:
+
+| Estágio | Módulo | O que faz |
+| --- | --- | --- |
+| Ingestão | `src/ingest.py` | Carrega e valida as bases brutas, através da abstração `DataSource` |
+| Preparação | `src/features.py` | Coordenadas em três níveis de precisão e atributos do modelo |
+| Treino | `src/train.py` | K-means das regionais e regressão do preço de combustível |
+| Serving | `src/serve.py` | Custo e modal por trecho, preço por estado e pacote do produto |
+
+O resumo da execução fica em `dados/saida/relatorio_execucao.json`.
+
+### Testes
+
+```bash
+python -m pytest tests/ -v
+```
+
+22 testes, um arquivo por módulo, ligados aos critérios de aceite do backlog.
 
 ### Produto
 
@@ -151,24 +169,29 @@ conexão.
 
 ```
 .
+├── src/
+│   ├── ingest.py        ingestão: DataSource e cargas validadas
+│   ├── features.py      preparação: coordenadas e atributos
+│   ├── train.py         treino: k-means e modelo de preço
+│   ├── serve.py         serving: modais, preço por estado, pacote do produto
+│   └── pipeline.py      orquestração, único ponto que conhece as fontes concretas
+├── tests/               pytest, um arquivo por módulo
 ├── dados/
 │   ├── brutos/          bases originais (não versionadas)
-│   └── ...              arquivos intermediários gerados pelo pipeline
-├── pipeline/
-│   ├── 01_baixar_bases.py
-│   ├── 02_enriquecer_coordenadas.py
-│   ├── 03_definir_regionais.py
-│   ├── 04_gerar_dados.py
-│   ├── 05_montar_produto.py
-│   └── decisao_transporte.py    modelo de custo e tempo por modal
+│   └── saida/           pacote do produto e relatório de execução (gerados)
 ├── produto/
 │   ├── fonte/           template, módulos JavaScript e estilos
-│   └── roteirizacao-visitas.html   gerado pela etapa 05
+│   └── roteirizacao-visitas.html   protótipo, gerado pelo pipeline
 ├── docs/
-│   └── apresentacao-roteirizacao.pptx
+│   ├── backlog.md       épicos, user stories, INVEST e requisitos (Aula 4)
+│   ├── arquitetura.md   arquitetura de referência e SOLID (Aula 5)
+│   ├── planejamento.md  WBS, estimativas, riscos e Sprint 1 (Aula 6)
+│   └── img/             gráficos
 ├── requirements.txt
 └── README.md
 ```
+
+O backlog está nas [Issues](https://github.com/davi-cassiano/Projeto-Varela/issues) do repositório.
 
 ### Fronteira entre dados e interface
 
@@ -192,7 +215,7 @@ O projeto segue o CRISP-DM. Situação de cada etapa:
 | 1. Entendimento do negócio | Concluída — objetivos, requisitos, riscos e critérios de sucesso definidos |
 | 2. Entendimento dos dados | Concluída — bases levantadas, exploradas e com riscos de qualidade mapeados |
 | 3. Preparação dos dados | Concluída — limpeza, geocodificação em três níveis e matriz de distância, tempo e custo |
-| 4. Modelagem | Parcial — k-means formando as regionais e modelo de custo por modal implementados; o algoritmo de roteirização (TSP/VRP) é o próximo passo |
+| 4. Modelagem | Parcial — k-means das regionais e regressão do preço por estado treinados e testados; o algoritmo de roteirização (TSP/VRP) é a US12 |
 | 5. Avaliação | Parcial — comparação com cenário de referência implementada; falta a linha de base real |
 | 6. Implantação | Não iniciada |
 
