@@ -6,14 +6,27 @@ agrupa as agências em regionais, permite montar uma viagem de visitas e
 recomenda a sequência, o meio de transporte e o custo de cada trecho.
 
 **Disciplina:** Projeto e Gestão de Dados (CCD610) — Projeto Integrador
-**Entrega:** Checkpoint das aulas 1, 2 e 3
+**Entrega atual:** Checkpoint das Aulas 4, 5 e 6 — requisitos, arquitetura e planejamento
 
 ## Integrantes
 
-- Davi Cassiano
-- Gabriel Felipe
-- Victor Meneguin
-- Luca Juraski
+| Integrante | Frente |
+| --- | --- |
+| Davi Cassiano | Repositório, revisão de código e prazo |
+| Gabriel Felipe | Base de agências e qualidade dos dados |
+| Luca Juraski | Modelo de preço e pipeline |
+| Victor Meneguin | Negócio, modais e rota |
+
+## Entregas do checkpoint das Aulas 4, 5 e 6
+
+| Parte | O que é | Onde está |
+| --- | --- | --- |
+| 1 · Requisitos | 4 épicos, 14 user stories com critérios Dado/Quando/Então, INVEST, requisitos funcionais, não funcionais e de dados | [`docs/backlog.md`](docs/backlog.md) e [Issues](https://github.com/davi-cassiano/Projeto-Varela/issues) |
+| 2 · Arquitetura | Pipeline em ingestão, preparação, treino e serving; princípios SOLID; 23 testes | [`docs/arquitetura.md`](docs/arquitetura.md), [`src/`](src), [`tests/`](tests) |
+| 2 · Revisão | Pull request revisado, com comentários resolvidos | [PR #15](https://github.com/davi-cassiano/Projeto-Varela/pull/15) |
+| 3 · Planejamento | WBS, Planning Poker, capacidade, matriz de riscos e plano da Sprint 1 | [`docs/planejamento.md`](docs/planejamento.md) |
+| Quadro | Backlog com pontos, por onda e situação | [GitHub Projects](https://github.com/users/davi-cassiano/projects/1/views/1) |
+| Apresentação | 19 slides | [`docs/apresentacao-checkpoint-4-6.pptx`](docs/apresentacao-checkpoint-4-6.pptx) |
 
 ---
 
@@ -29,7 +42,7 @@ ordem, em quais datas e por qual meio de transporte.
 
 ## O que o protótipo faz
 
-- Agrupa 2.040 agências reais em 106 regionais, por proximidade geográfica
+- Agrupa 2.010 agências reais do Itaú Unibanco em 105 regionais, por proximidade geográfica
 - Mostra, por regional, o que vence nos próximos 30 dias e o que está em atraso
 - Permite selecionar agências com busca, filtros e atalhos por prioridade
 - Aceita restrições de agenda: janela de visita, teto diário, limite de dias,
@@ -99,7 +112,9 @@ obtidas em três níveis, e cada agência registra qual nível foi usado:
 A base pública de bairros contém colisão de nomes — o bairro Mirandópolis, na
 capital paulista, recebe as coordenadas da cidade de Mirandópolis, a 530 km. O
 pipeline descarta qualquer coordenada de bairro a mais de 30 km do centróide do
-próprio município.
+próprio município (290 descartadas). O limite único prejudica municípios muito
+extensos, como o Rio de Janeiro; a correção está na
+[Issue #16](https://github.com/davi-cassiano/Projeto-Varela/issues/16).
 
 ### O que é simulado
 
@@ -118,8 +133,8 @@ Python 3.10 ou superior e um navegador. O pipeline usa internet apenas na
 primeira etapa.
 
 ```bash
-git clone <URL DO REPOSITÓRIO>
-cd roteirizacao-agencias
+git clone https://github.com/davi-cassiano/Projeto-Varela.git
+cd Projeto-Varela
 python -m venv .venv
 source .venv/bin/activate        # no Windows: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -190,6 +205,8 @@ conexão.
 │   ├── backlog.md       épicos, user stories, INVEST e requisitos (Aula 4)
 │   ├── arquitetura.md   arquitetura de referência e SOLID (Aula 5)
 │   ├── planejamento.md  WBS, estimativas, riscos e Sprint 1 (Aula 6)
+│   ├── apresentacao-checkpoint-4-6.pptx   apresentação do checkpoint atual
+│   ├── apresentacao-roteirizacao.pptx     apresentação do checkpoint 1
 │   └── img/             gráficos
 ├── requirements.txt
 └── README.md
@@ -225,10 +242,17 @@ O projeto segue o CRISP-DM. Situação de cada etapa:
 
 ## Próximos passos
 
-1. Substituir a varredura geográfica por um algoritmo de roteirização
-2. Geocodificação por endereço, levando a precisão do bairro ao nível de rua
-3. Consulta de preços e tarifas em tempo real
-4. Persistência em banco, autenticação e integração com a agenda corporativa
+O plano completo está em [`docs/planejamento.md`](docs/planejamento.md). A
+Sprint 1 entregou US05, US10 e US11. As próximas:
+
+| Sprint | Foco | Pontos |
+| --- | --- | --- |
+| 2 | Validar com um gerente real as stories de interface da Onda 1 (US01–US04, US07, US08); limite de desvio por município (#16) | 18 |
+| 3 | Detalhe do trecho, salvar e exportar, sequência otimizada (US06, US09, US12) | 16 |
+| 4 | Painel da regional e preços atualizados automaticamente (US13, US14) | 8 |
+
+Fora do escopo do MVP: geocodificação por endereço, tarifas em tempo real,
+persistência em banco, autenticação e integração com a agenda corporativa.
 
 ## Fontes
 
