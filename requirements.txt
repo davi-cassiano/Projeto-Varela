@@ -6,6 +6,8 @@
 
 pandas>=2.0            # leitura e tratamento das bases
 openpyxl>=3.1          # leitura dos arquivos .xlsx do Bacen e da base consolidada
-scikit-learn>=1.3      # k-means na formação das regionais
+scikit-learn>=1.3      # k-means das regionais e regressão Ridge do preço
 shapely>=2.0           # simplificação da geometria dos estados para o mapa
-requests>=2.31         # download das bases auxiliares (etapa 01)
+requests>=2.31         # download das bases auxiliares
+matplotlib>=3.7        # gráfico de erro do modelo
+pytest>=8.0            # testes automatizados

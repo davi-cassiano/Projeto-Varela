@@ -24,14 +24,21 @@ function distanciaKm(a, b) {
   return 2 * R_TERRA * Math.asin(Math.sqrt(h));
 }
 
-function estimarCarro(distReta, p) {
+/* US11: o preço da gasolina vem do modelo treinado por estado (serve.py).
+   Sem estimativa para o estado, usa o preço nacional de referência. */
+function precoGasolina(p, uf) {
+  const porUf = p.precoGasolinaPorUf || {};
+  return (uf && porUf[uf]) || p.carro.precoGasolinaLitro;
+}
+
+function estimarCarro(distReta, p, uf) {
   const distRodo = distReta * p.fatorSinuosidade;
   const c = p.carro;
   return {
     modal: "carro",
     disponivel: true,
     distanciaKm: distRodo,
-    custo: distRodo * (c.precoGasolinaLitro / c.consumoKmLitro + c.pedagioPorKm),
+    custo: distRodo * (precoGasolina(p, uf) / c.consumoKmLitro + c.pedagioPorKm),
     minutos: (distRodo / c.velocidadeKmh) * 60,
     observacao:
       distRodo > c.maxKmDia
@@ -95,7 +102,7 @@ function compararModais(origem, destino, parametros, pesoCusto = 0.5, permitidos
   const dist = distanciaKm(origem, destino);
 
   const opcoes = [
-    estimarCarro(dist, parametros),
+    estimarCarro(dist, parametros, origem.uf),
     estimarOnibus(dist, parametros),
     estimarAviao(dist, parametros),
   ];

@@ -3,13 +3,14 @@
 dados/brutos/*
 !dados/brutos/LEIA-ME.md
 
-# Arquivos intermediários gerados pelo pipeline
+# Arquivos gerados pelo pipeline
 dados/*.csv
 dados/*.json
 dados/*.geojson
+dados/saida/
+.pytest_cache/
 
-# O produto final é gerado pela etapa 05
-produto/roteirizacao-visitas.html
+# O protótipo é gerado pelo pipeline, mas fica versionado para abrir sem rodar nada
 
 # Python
 __pycache__/
