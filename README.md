@@ -6,7 +6,7 @@ agrupa as agências em regionais, permite montar uma viagem de visitas e
 recomenda a sequência, o meio de transporte e o custo de cada trecho.
 
 **Disciplina:** Projeto e Gestão de Dados (CCD610) — Projeto Integrador
-**Entrega atual:** Checkpoint das Aulas 4, 5 e 6 — requisitos, arquitetura e planejamento
+**Situação:** checkpoints das Aulas 1–3 e 4–6 entregues; próximo passo é a Sprint 2
 
 ## Integrantes
 
@@ -17,9 +17,24 @@ recomenda a sequência, o meio de transporte e o custo de cada trecho.
 | Luca Juraski | Modelo de preço e pipeline |
 | Victor Meneguin | Negócio, modais e rota |
 
-## Entregas do checkpoint das Aulas 4, 5 e 6
+## Entregas
 
-| Parte | O que é | Onde está |
+O projeto é avaliado em checkpoints. Cada um parte do anterior: o Canvas MVP
+vira backlog, o backlog vira arquitetura e a arquitetura vira plano.
+
+### Checkpoint 1 · Aulas 1, 2 e 3 — Engenharia de software, CRISP-DM e Lean Inception
+
+| O quê | Onde está |
+| --- | --- |
+| Repositório versionado, README e dependências | Este repositório |
+| Entendimento do negócio e dos dados (CRISP-DM): objetivos, bases, qualidade, riscos e critérios de sucesso | Seções abaixo e apresentação |
+| Visão do produto, personas, ondas de funcionalidades e Canvas MVP (Lean Inception) | Seções abaixo e apresentação |
+| Protótipo navegável com as jornadas da Onda 1 | [`produto/roteirizacao-visitas.html`](produto/roteirizacao-visitas.html) |
+| Apresentação | [`docs/apresentacao-checkpoint-1-3.pptx`](docs/apresentacao-checkpoint-1-3.pptx) |
+
+### Checkpoint 2 · Aulas 4, 5 e 6 — Requisitos, arquitetura e planejamento
+
+| Parte | O quê | Onde está |
 | --- | --- | --- |
 | 1 · Requisitos | 4 épicos, 14 user stories com critérios Dado/Quando/Então, INVEST, requisitos funcionais, não funcionais e de dados | [`docs/backlog.md`](docs/backlog.md) e [Issues](https://github.com/davi-cassiano/Projeto-Varela/issues) |
 | 2 · Arquitetura | Pipeline em ingestão, preparação, treino e serving; princípios SOLID; 23 testes | [`docs/arquitetura.md`](docs/arquitetura.md), [`src/`](src), [`tests/`](tests) |
@@ -39,6 +54,42 @@ escolhido por hábito, e o custo só aparece na prestação de contas.
 
 O sistema responde a quatro perguntas de uma vez: quais agências visitar, em que
 ordem, em quais datas e por qual meio de transporte.
+
+## Visão do produto
+
+> **Para** gerentes regionais **que** precisam planejar visitas presenciais às
+> agências sob sua responsabilidade, **o** Sistema de Roteirização de Visitas
+> **é** uma ferramenta de apoio à decisão **que** recomenda a sequência de
+> visitas e o meio de transporte mais adequado, considerando tempo, distância,
+> custo e restrições. **Diferente de** planilhas e planejamento manual,
+> **nosso produto** consolida as informações e apresenta cenários comparáveis de
+> menor custo e menor tempo.
+
+### Persona
+
+**Rafael Menezes, gerente regional.** Organiza ciclos de visitas considerando
+origem, período, agenda, prioridades e regras de viagem. Hoje compara à mão
+agências, deslocamentos, custos e alternativas de transporte. Quer um
+cronograma viável e uma rota de boa qualidade com menos esforço.
+
+Seis personas foram discutidas no workshop; Rafael foi escolhida por ser quem
+planeja o roteiro e sente a dor central. As outras cinco (gerente de agência,
+diretor de operações, compliance, motorista, equipe de reembolsos) ficam para
+ondas posteriores.
+
+### Canvas MVP
+
+| Bloco | Conteúdo |
+| --- | --- |
+| Resultado esperado | Validar se uma recomendação automatizada de roteiro ajuda o gerente a planejar com menos esforço, custo e tempo, respeitando restrições e periodicidade |
+| Onda 1 (MVP) | Selecionar agências · informar origem, período e restrições · escolher o objetivo · gerar a sequência · recomendar o modal por trecho · exibir distância, tempo e custo · exibir totais e economia · comparar com um cenário de referência |
+| Onda 2 | Sequência otimizada · painel gerencial · atualização automática de preços · reotimização dinâmica |
+| Fora de escopo | Chatbot, gamificação, integração com Uber e 99, app nativo, aprovação de despesas, hotel, clima |
+| Métricas de validação | Redução de custo e tempo por ciclo · ≥ 90% das visitas dentro da periodicidade · ≥ 80% de adoção no piloto · economia sobre a referência |
+
+Das 20 ideias do brainstorming, 8 formaram a Onda 1. As metas de custo e tempo
+dependem de uma linha de base real, medida no piloto; o protótipo aproxima essa
+linha de base com o cenário de referência.
 
 ## O que o protótipo faz
 
@@ -205,8 +256,8 @@ conexão.
 │   ├── backlog.md       épicos, user stories, INVEST e requisitos (Aula 4)
 │   ├── arquitetura.md   arquitetura de referência e SOLID (Aula 5)
 │   ├── planejamento.md  WBS, estimativas, riscos e Sprint 1 (Aula 6)
-│   ├── apresentacao-checkpoint-4-6.pptx   apresentação do checkpoint atual
-│   ├── apresentacao-roteirizacao.pptx     apresentação do checkpoint 1
+│   ├── apresentacao-checkpoint-1-3.pptx   apresentação das Aulas 1 a 3
+│   ├── apresentacao-checkpoint-4-6.pptx   apresentação das Aulas 4 a 6
 │   └── img/             gráficos
 ├── requirements.txt
 └── README.md
