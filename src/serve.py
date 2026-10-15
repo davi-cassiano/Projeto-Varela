@@ -36,7 +36,9 @@ from .train import EstimadorPreco, extensao_km
 # ---------------------------------------------------------------------
 
 FATOR_SINUOSIDADE = 1.25
-PRECO_GASOLINA_NACIONAL = 6.70     # R$/L, média ANP usada como referência
+# Valor padrão do preço nacional de referência (R$/L, média ANP). Não é lido
+# daqui em produção: o pipeline recebe o valor atual por `--preco-gasolina`.
+PRECO_GASOLINA_NACIONAL = 6.70
 
 
 @dataclass
@@ -176,7 +178,8 @@ def _nome_agencia(bruto, bairro, municipio) -> str:
 
 def montar_pacote(agencias: pd.DataFrame, aeroportos: pd.DataFrame,
                   estados: list, cidades: list, precos_uf: dict[str, float],
-                  avaliacoes: list, gerado_em: str) -> dict:
+                  avaliacoes: list, gerado_em: str,
+                  preco_nacional: float = PRECO_GASOLINA_NACIONAL) -> dict:
     """Estrutura única consumida pela interface. Trocar este pacote por uma
     API com o mesmo formato não exige mudança nas telas."""
     lista_ag = [{
@@ -215,7 +218,7 @@ def montar_pacote(agencias: pd.DataFrame, aeroportos: pd.DataFrame,
         "estados": estados,
         "cidades": cidades,
         "parametros": {
-            "carro": {"precoGasolinaLitro": PRECO_GASOLINA_NACIONAL, "consumoKmLitro": 12.0,
+            "carro": {"precoGasolinaLitro": preco_nacional, "consumoKmLitro": 12.0,
                       "pedagioPorKm": 0.05, "velocidadeKmh": 80.0, "maxKmDia": 700.0},
             "onibus": {"a": Onibus.A, "b": Onibus.B, "c": Onibus.C, "velocidadeKmh": Onibus.VELOCIDADE},
             "aviao": {"a": Aviao.A, "b": Aviao.B, "c": Aviao.C, "velocidadeKmh": Aviao.VELOCIDADE,

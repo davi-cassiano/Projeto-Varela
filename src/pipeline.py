@@ -9,6 +9,7 @@ Uso, a partir da raiz do repositório:
 
     python -m src.pipeline                 # pipeline completo
     python -m src.pipeline --sem-download  # não tenta baixar bases auxiliares
+    python -m src.pipeline --preco-gasolina 6.45  # preço nacional da semana
 """
 
 from __future__ import annotations
@@ -32,7 +33,8 @@ PRODUTO = os.path.join("produto", "roteirizacao-visitas.html")
 def executar(fonte_agencias: ingest.DataSource, fonte_precos: ingest.DataSource,
              fonte_municipios: ingest.DataSource, fonte_bairros: ingest.DataSource,
              fonte_aeroportos: ingest.DataSource, geojson_estados: dict,
-             montar_html: bool = True) -> dict:
+             montar_html: bool = True,
+             preco_nacional: float = serve.PRECO_GASOLINA_NACIONAL) -> dict:
     inicio = time.time()
     relatorio: dict = {}
 
@@ -60,12 +62,13 @@ def executar(fonte_agencias: ingest.DataSource, fonte_precos: ingest.DataSource,
     relatorio["modelo_escolhido"] = estimador.nome
 
     # 4. Serving
-    precos_uf = serve.precos_por_uf(estimador, atributos)
+    precos_uf = serve.precos_por_uf(estimador, atributos, preco_nacional)
+    relatorio["preco_nacional"] = preco_nacional
     pacote = serve.montar_pacote(
         agencias, aeroportos,
         features.simplificar_estados(geojson_estados),
         features.compactar_cidades(municipios),
-        precos_uf, avaliacoes, features.DATA_REFERENCIA.isoformat(),
+        precos_uf, avaliacoes, features.DATA_REFERENCIA.isoformat(), preco_nacional,
     )
 
     os.makedirs(SAIDA, exist_ok=True)
@@ -87,6 +90,8 @@ def main() -> None:
     p = argparse.ArgumentParser(description="Pipeline de roteirização de visitas")
     p.add_argument("--sem-download", action="store_true", help="não baixar bases auxiliares")
     p.add_argument("--sem-html", action="store_true", help="não montar o HTML do produto")
+    p.add_argument("--preco-gasolina", type=float, default=serve.PRECO_GASOLINA_NACIONAL,
+                   help="preço nacional atual da gasolina em R$/L (síntese semanal da ANP)")
     args = p.parse_args()
 
     if not args.sem_download:
@@ -101,6 +106,7 @@ def main() -> None:
         fonte_aeroportos=ingest.ExcelSource(consolidada, "Aeroportos"),
         geojson_estados=ingest.carregar_geojson(os.path.join(DADOS, "uf.geojson")),
         montar_html=not args.sem_html,
+        preco_nacional=args.preco_gasolina,
     )
 
     print(f"Agências: {rel['agencias']}  |  regionais: {rel['regionais']}")

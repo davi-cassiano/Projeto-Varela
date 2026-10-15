@@ -54,3 +54,15 @@ def test_modal_novo_entra_sem_alterar_codigo_existente():
 
     r = comparar_modais(SAO_PAULO, RIO, modais=[Carro(), Onibus(), Trem()])
     assert r["recomendado"] == "trem"
+
+
+def test_preco_nacional_vem_de_fora_e_nao_do_codigo():
+    """Revisão do PR #15: o preço nacional é parâmetro, não constante fixa."""
+    import pandas as pd
+
+    from src.serve import precos_por_uf
+    from src.train import BaselineNacional
+
+    atributos = pd.DataFrame({"data": pd.to_datetime(["2021-05-01"] * 2), "uf": ["SP", "RJ"]})
+    precos = precos_por_uf(BaselineNacional(), atributos, preco_nacional=6.45)
+    assert precos == {"SP": 6.45, "RJ": 6.45}
