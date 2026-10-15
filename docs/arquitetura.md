@@ -131,6 +131,25 @@ abaixo, encontradas durante a refatoração.
 | Filtro de instituição por trecho de texto (`"ITA"`) | Entravam 30 registros que não são agências do Itaú, como corretoras com "CAPITAL" no nome | Filtro pelo nome exato "ITAÚ UNIBANCO S.A." — 2.010 agências |
 | Regra de abreviação sem limite de palavra | "SANTA CATARINA" virava "SAO ANTA CATARINA" e "VILA" virava "VILA ILA" | Abreviação só expandida quando é palavra inteira; teste em `test_features.py` |
 
+**Limitação encontrada na revisão do PR #15 — a regra dos 30 km.** O teste de
+sensibilidade mostra que 30 km é o ponto de equilíbrio entre descartar colisões
+e manter bairros legítimos:
+
+| Desvio máximo | Descartadas | Agências com coordenada de bairro |
+| --- | --- | --- |
+| 10 km | 511 | 63,7% |
+| 20 km | 336 | 72,4% |
+| **30 km (adotado)** | **290** | **74,7%** |
+| 50 km | 255 | 76,5% |
+| 100 km | 215 | 78,5% |
+| sem limite | 0 | 89,2% (inclui colisões, como Mirandópolis a 530 km) |
+
+Mas um limite único não serve para municípios muito extensos: dez agências do
+Rio de Janeiro, em bairros da Zona Oeste a 37–50 km do centro, são descartadas
+mesmo estando certas. Elas caem para a coordenada do município, o que é
+conservador, não errado. A correção — limite proporcional à extensão de cada
+município — está registrada na Issue #16 e entra na Sprint 2, junto do risco R1.
+
 Números da versão final: 2.010 agências, 105 regionais, 74,7% com coordenada de
 bairro, 290 coordenadas descartadas pela regra dos 30 km.
 
@@ -148,6 +167,18 @@ maio de 2021, sem embaralhar as semanas, para o modelo não ver o futuro.
 
 ![Erro mensal do modelo](img/erro_modelo_por_mes.png)
 
+**Sensibilidade ao ponto de corte** (pergunta da revisão do PR #15):
+
+| Corte treino/teste | Baseline | Ridge | Ridge vs baseline |
+| --- | --- | --- | --- |
+| jan/2019 | 0,196 | 0,085 | −57% |
+| **jan/2020 (adotado)** | **0,199** | **0,095** | **−52%** |
+| jul/2020 | 0,201 | 0,096 | −52% |
+
+A conclusão não depende do corte. Jan/2020 foi escolhido porque deixa o choque
+de preços da pandemia inteiro no teste: é o cenário mais difícil para o modelo,
+e o resultado não fica otimista por ter sido medido num período calmo.
+
 O erro cresce no início da pandemia (abril e maio de 2020) e tem o pico em
 outubro de 2020. É o drift que a Aula 4 descreve: o modelo foi ajustado num
 regime de preços e é avaliado em outro. A série da ANP não tem setembro de 2020.
@@ -163,5 +194,5 @@ Validar essa premissa com dados recentes é a US14.
 python -m pytest tests/ -v
 ```
 
-22 testes, um arquivo por módulo. Cada critério de aceite que pode ser
+23 testes, um arquivo por módulo. Cada critério de aceite que pode ser
 verificado no pipeline virou um teste.

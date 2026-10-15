@@ -136,7 +136,11 @@ Um comando roda tudo, a partir da raiz do projeto:
 
 ```bash
 python -m src.pipeline
+python -m src.pipeline --preco-gasolina 6.45   # preço nacional da semana (ANP), em R$/L
 ```
+
+Sem `--preco-gasolina`, o pipeline usa R$ 6,70 como referência. Atualize o valor
+pela síntese semanal da ANP antes de gerar o produto.
 
 São quatro estágios, cada um num módulo com responsabilidade única:
 
@@ -155,7 +159,7 @@ O resumo da execução fica em `dados/saida/relatorio_execucao.json`.
 python -m pytest tests/ -v
 ```
 
-22 testes, um arquivo por módulo, ligados aos critérios de aceite do backlog.
+23 testes, um arquivo por módulo, ligados aos critérios de aceite do backlog.
 
 ### Produto
 

@@ -226,7 +226,7 @@ R1, R2, R4 e R6.
 | US10 | Entregue — 74,7% com coordenada de bairro (meta: 70%) |
 | US11 | Entregue — MAE R$ 0,095/L (meta: até R$ 0,15/L e 25% abaixo do baseline) |
 | US05 | Entregue — avião indisponível abaixo de 150 km e modal desligado nunca recomendado |
-| Testes e PR | 22 testes passando; pull request #15 em revisão |
+| Testes e PR | 23 testes passando; pull request #15 revisado, com três comentários respondidos |
 
 ---
 
