@@ -74,8 +74,7 @@ Qualquer story com 13 pontos ou mais é dividida.
 
 ### Pontos por story
 
-> **Atenção:** os pontos abaixo são a proposta de partida. Os valores finais
-> saem do Planning Poker do grupo e substituem esta coluna.
+Valores finais, fechados no Planning Poker (registro na seção seguinte).
 
 | Story | Pontos | Justificativa da comparação com a US01 |
 | --- | --- | --- |
@@ -87,14 +86,58 @@ Qualquer story com 13 pontos ou mais é dividida.
 | US06 · Detalhe do trecho | 3 | Mesmo porte: exibição, mais a regra de empate técnico |
 | US07 · Totais e economia | 2 | Menor: soma, mais a regra de diária |
 | US08 · Cenário de referência | 3 | Mesmo porte: reaproveita o cálculo da US07 |
-| US09 · Salvar e exportar | 3 | Mesmo porte |
+| US09 · Salvar e exportar | 5 | Maior: salvar, reabrir e exportar em formato legível fora do sistema (revisto no Poker, de 3 para 5) |
 | US10 · Coordenadas das agências | 5 | Maior: três níveis, validação de desvio e correção de abreviações |
 | US11 · Preço de combustível por estado | 8 | Bem maior: modelo, validação temporal, baseline e integração |
-| US12 · Sequência otimizada | 8 | Bem maior e incerta; se o Poker passar de 8, dividir em heurística e refinamento |
+| US12 · Sequência otimizada | 8 | Bem maior e incerta; escopo limitado no Poker a vizinho mais próximo + 2-opt para caber em 8 |
 | US13 · Painel da regional | 3 | Mesmo porte |
 | US14 · Preços automáticos | 5 | Maior e dependente de fonte externa |
 
-**Total:** Onda 1 com 40 pontos · Onda 2 com 16 pontos · backlog com 56 pontos.
+**Total:** Onda 1 com 42 pontos · Onda 2 com 16 pontos · backlog com 58 pontos.
+
+### Registro do Planning Poker
+
+Votação simultânea em cartas de Fibonacci. Votos vizinhos (como 2 e 3) foram
+resolvidos com uma conversa rápida; votos distantes (como 3 e 8) levaram a uma
+segunda rodada, depois de quem votou o menor e quem votou o maior explicarem o
+motivo. A US01 não foi votada: é a referência, com 3 pontos.
+
+| Story | 1ª rodada (Davi · Gabriel · Luca · Victor) | 2ª rodada | Final |
+| --- | --- | --- | --- |
+| US02 | 3 · 3 · 3 · 3 | — | **3** |
+| US03 | 2 · 2 · 3 · 2 | — | **2** |
+| US04 | 3 · 5 · 8 · 5 | 5 · 5 · 5 · 5 | **5** |
+| US05 | 3 · 3 · 3 · 3 | — | **3** |
+| US06 | 2 · 3 · 3 · 3 | — | **3** |
+| US07 | 2 · 2 · 2 · 2 | — | **2** |
+| US08 | 3 · 2 · 3 · 3 | — | **3** |
+| US09 | 3 · 3 · 5 · 8 | 5 · 5 · 5 · 5 | **5** |
+| US10 | 5 · 5 · 8 · 5 | — | **5** |
+| US11 | 5 · 8 · 13 · 8 | 8 · 8 · 8 · 8 | **8** |
+| US12 | 8 · 13 · 8 · 13 | 8 · 8 · 8 · 8 | **8** |
+| US13 | 3 · 3 · 2 · 3 | — | **3** |
+| US14 | 5 · 8 · 5 · 5 | — | **5** |
+
+**Divergências que mudaram a conversa:**
+
+- **US04 (3 a 8).** O 3 considerava só ordenar as agências por ângulo. O 8
+  lembrou que a sequência precisa ser quebrada em dias respeitando o teto de
+  horas e a janela de atendimento. Ficou 5: a regra de dias é mais trabalho que
+  a US01, mas a lógica de ordenação já existe.
+- **US09 (3 a 8).** O 3 pensava só em "salvar". O 8 incluiu reabrir um
+  planejamento antigo quando a base de agências mudou. Ficou 5, com a decisão de
+  que reabrir mostra um aviso se alguma agência saiu da base, sem tentar
+  reconciliar.
+- **US11 (5 a 13).** O 13 refletia a incerteza de um modelo ainda não testado.
+  O argumento que fechou em 8: o baseline já tinha sido medido (MAE de
+  R$ 0,20/L), então a meta era conhecida. Um 13 obrigaria a dividir a story.
+- **US12 (8 e 13).** Empate. O grupo preferiu reduzir o escopo a dividir:
+  vizinho mais próximo seguido de 2-opt (troca de pares de trechos que se
+  cruzam). Algoritmos mais sofisticados viram story nova, se a métrica de
+  economia pedir.
+
+**Efeito no plano:** a US09 subiu de 3 para 5. O backlog passou de 56 para 58
+pontos, a Sprint 3 de 14 para 16 e a previsão continua em 4 sprints.
 
 ### Capacidade
 
@@ -104,7 +147,7 @@ Qualquer story com 13 pontos ou mais é dividida.
 | Duração da sprint | 2 semanas |
 | Velocidade assumida na Sprint 1 | **20 pontos** |
 | Premissa | Cada integrante concilia o projeto com outras disciplinas e provas; a velocidade é hipótese e será recalibrada ao fim da Sprint 1 |
-| Previsão | 56 pontos ÷ 20 por sprint = 2,8, ou seja, **pelo menos 3 sprints**; encaixando as stories inteiras, 4 (seção 5) |
+| Previsão | 58 pontos ÷ 20 por sprint = 2,9, ou seja, **pelo menos 3 sprints**; encaixando as stories inteiras, 4 (seção 5) |
 
 ---
 
@@ -195,8 +238,8 @@ sprints elas passam a ter o critério de aceite validado com um gerente real.
 | Sprint | Stories | Pontos |
 | --- | --- | --- |
 | Sprint 2 | US01, US02, US03, US04, US07, US08 — montagem, sequência e avaliação | 18 |
-| Sprint 3 | US06, US09, US12 — detalhe, registro e sequência otimizada | 14 |
+| Sprint 3 | US06, US09, US12 — detalhe, registro e sequência otimizada | 16 |
 | Sprint 4 | US13, US14 — painel e atualização automática de preços | 8 |
 
-Total de 56 pontos em 4 sprints. A velocidade real medida na Sprint 1 recalibra
+Total de 58 pontos em 4 sprints. A velocidade real medida na Sprint 1 recalibra
 esta previsão.

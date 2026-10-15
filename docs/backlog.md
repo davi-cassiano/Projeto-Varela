@@ -273,7 +273,8 @@ INVEST: **I**ndependent (independente), **N**egotiable (negociável), **V**aluab
 | US14 | ⚠ | ✓ | ✓ | ⚠ | ⚠ | ✓ | Depende de fonte com publicação automatizada; avaliar antes de estimar |
 
 Nenhuma story precisou ser reescrita. As marcadas com ⚠ têm a ressalva registrada
-e serão revistas no Planning Poker.
+e foram revistas no Planning Poker (registro em `planejamento.md`): a US12 teve
+o escopo limitado para caber em 8 pontos, e a US11 fechou em 8.
 
 ---
 
