@@ -191,7 +191,7 @@ conexão.
 └── README.md
 ```
 
-O backlog está nas [Issues](https://github.com/davi-cassiano/Projeto-Varela/issues) do repositório.
+O backlog está nas [Issues](https://github.com/davi-cassiano/Projeto-Varela/issues) do repositório e organizado no [quadro do projeto](https://github.com/users/davi-cassiano/projects/1/views/1).
 
 ### Fronteira entre dados e interface
 
