@@ -270,7 +270,7 @@ INVEST: **I**ndependent (independente), **N**egotiable (negociável), **V**aluab
 | US11 | ✓ | ✓ | ✓ | ⚠ | ✓ | ✓ | Estimativa incerta: modelo é experimento; baseline medido antes reduz o risco |
 | US12 | ✓ | ✓ | ✓ | ⚠ | ⚠ | ✓ | Pode não caber numa sprint; se passar de 8 pontos, dividir em heurística e refinamento |
 | US13 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — |
-| US14 | ⚠ | ✓ | ✓ | ⚠ | ⚠ | ✓ | Depende de fonte com publicação automatizada; avaliar antes de estimar |
+| US14 | ⚠ | ✓ | ✓ | ⚠ | ⚠ | ✓ | Depende de fonte com publicação automatizada; os 5 pontos do Poker são ordem de grandeza, a rever depois de avaliar a fonte |
 
 Nenhuma story precisou ser reescrita. As marcadas com ⚠ têm a ressalva registrada
 e foram revistas no Planning Poker (registro em `planejamento.md`): a US12 teve
