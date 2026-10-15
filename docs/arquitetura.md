@@ -188,6 +188,10 @@ diferença de cada estado sobre o preço nacional de referência atual (R$ 6,70)
 assumindo que a diferença entre estados é mais estável que o nível de preço.
 Validar essa premissa com dados recentes é a US14.
 
+Os dois modelos — o k-means das regionais e esta regressão — estão reproduzidos
+num notebook executável no Google Colab, com os mesmos dados e o mesmo código:
+[notebooks/modelos.ipynb](https://colab.research.google.com/github/davi-cassiano/Projeto-Varela/blob/main/notebooks/modelos.ipynb).
+
 ## 7. Testes
 
 ```bash

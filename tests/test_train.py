@@ -12,8 +12,19 @@ from src.train import (BaselineNacional, RegressaoEstado, avaliar,
 
 
 
-TSV_ANP = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                       "dados", "brutos", "2004-2021.tsv")
+RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TSV_ANP = os.path.join(RAIZ, "dados", "brutos", "2004-2021.tsv")
+CSV_ANP = os.path.join(RAIZ, "dados", "colab", "precos_gasolina_comum_anp.csv")
+
+
+def _precos():
+    """Série bruta da ANP se estiver baixada; senão, o recorte de gasolina
+    comum versionado em dados/colab/ (o mesmo que o notebook usa)."""
+    from src.ingest import TsvSource, carregar_precos
+
+    if os.path.exists(TSV_ANP):
+        return carregar_precos(TsvSource(TSV_ANP))
+    return pd.read_csv(CSV_ANP, parse_dates=["data"])
 
 
 def _agencias(pontos):
@@ -44,14 +55,14 @@ def test_nomes_de_regionais_sao_unicos():
     assert r.groupby("regional_id")["regional"].first().is_unique
 
 
-@pytest.mark.skipif(not os.path.exists(TSV_ANP), reason="série da ANP não baixada")
+@pytest.mark.skipif(not os.path.exists(TSV_ANP) and not os.path.exists(CSV_ANP),
+                    reason="série de preços não disponível")
 def test_criterio_de_aceite_us11():
     """US11: MAE de no máximo R$ 0,15/L no teste (2020-2021) e pelo menos
     25% abaixo do baseline, que usa o mesmo preço para todos os estados."""
     from src.features import atributos_preco
-    from src.ingest import TsvSource, carregar_precos
 
-    atributos = atributos_preco(carregar_precos(TsvSource(TSV_ANP)))
+    atributos = atributos_preco(_precos())
     treino, teste = separar_no_tempo(atributos)
     modelo = avaliar(RegressaoEstado().ajustar(treino), teste)
     baseline = avaliar(BaselineNacional().ajustar(treino), teste)

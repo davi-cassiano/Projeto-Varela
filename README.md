@@ -42,6 +42,7 @@ vira backlog, o backlog vira arquitetura e a arquitetura vira plano.
 | 3 · Planejamento | WBS, Planning Poker, capacidade, matriz de riscos e plano da Sprint 1 | [`docs/planejamento.md`](docs/planejamento.md) |
 | Quadro | Backlog com pontos, por onda e situação | [GitHub Projects](https://github.com/users/davi-cassiano/projects/1/views/1) |
 | Apresentação | 19 slides | [`docs/apresentacao-checkpoint-4-6.pptx`](docs/apresentacao-checkpoint-4-6.pptx) |
+| Notebook | Os dois modelos (k-means e regressão Ridge) executáveis no Google Colab, com os testes do repositório | [Abrir no Colab](https://colab.research.google.com/github/davi-cassiano/Projeto-Varela/blob/main/notebooks/modelos.ipynb) · [`notebooks/modelos.ipynb`](notebooks/modelos.ipynb) |
 
 ---
 
@@ -227,6 +228,13 @@ python -m pytest tests/ -v
 
 23 testes, um arquivo por módulo, ligados aos critérios de aceite do backlog.
 
+### No Google Colab, sem instalar nada
+
+[Abrir `notebooks/modelos.ipynb` no Colab](https://colab.research.google.com/github/davi-cassiano/Projeto-Varela/blob/main/notebooks/modelos.ipynb) e usar *Ambiente de execução →
+Executar tudo*. O notebook reproduz o k-means das regionais (US01) e a regressão
+do preço por estado (US11) a partir dos dois arquivos pequenos em `dados/colab/`,
+e no fim clona o repositório e roda os 23 testes.
+
 ### Produto
 
 Abra `produto/roteirizacao-visitas.html` no navegador. É um arquivo único e
@@ -246,8 +254,11 @@ conexão.
 │   ├── serve.py         serving: modais, preço por estado, pacote do produto
 │   └── pipeline.py      orquestração, único ponto que conhece as fontes concretas
 ├── tests/               pytest, um arquivo por módulo
+├── notebooks/
+│   └── modelos.ipynb    k-means e regressão Ridge, executável no Google Colab
 ├── dados/
 │   ├── brutos/          bases originais (não versionadas)
+│   ├── colab/           recortes pequenos que o notebook e os testes usam (versionados)
 │   └── saida/           pacote do produto e relatório de execução (gerados)
 ├── produto/
 │   ├── fonte/           template, módulos JavaScript e estilos
