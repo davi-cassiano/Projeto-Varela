@@ -158,13 +158,13 @@ probabilidade × impacto. Resposta: evitar, mitigar, transferir ou aceitar.
 
 | ID | Risco | Tipo | Prob. | Impacto | Exposição | Resposta | Ação | Responsável |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **R1** | Coordenadas de agências erradas por colisão de nomes de bairro | Dados | Média | Alto | **6** | Mitigar | Descartar bairro a mais de 30 km do município; marcar precisão na interface; teste automático | _a definir_ |
-| **R2** | Série da ANP termina em 2021, sem preços recentes | Dados | Alta | Médio | **6** | Mitigar | Modelar a diferença entre estados, mais estável que o nível de preço; automatizar a ingestão na US14 | _a definir_ |
-| **R3** | Prioridade e periodicidade de visita não existem em base pública | Dados | Alta | Alto | **9** | Transferir | A área de negócio fornece o dado no piloto; até lá, campos simulados e declarados como tal | _a definir_ |
-| **R4** | Modelo de preço perde precisão num choque de mercado (drift) | Modelo | Média | Médio | **4** | Mitigar | Reavaliar a cada atualização da série; alerta acima de R$ 0,25/L | _a definir_ |
-| **R5** | Sequência por varredura gera rotas com ida e volta | Modelo | Alta | Médio | **6** | Aceitar | Declarado na interface e no backlog; otimização na US12 | _a definir_ |
-| **R6** | Sprint 1 cheia demais para o grupo, que concilia provas | Prazo | Média | Médio | **4** | Mitigar | Sprint 1 com 19 dos 20 pontos; story maior (US11) puxada primeiro | _a definir_ |
-| **R7** | Agenda e histórico do gerente seriam dados pessoais em produção | Privacidade | Baixa | Alto | **3** | Evitar | MVP sem dados pessoais; base legal e acesso mínimo antes da implantação | _a definir_ |
+| **R1** | Coordenadas de agências erradas por colisão de nomes de bairro | Dados | Média | Alto | **6** | Mitigar | Descartar bairro a mais de 30 km do município; marcar precisão na interface; teste automático | Gabriel |
+| **R2** | Série da ANP termina em 2021, sem preços recentes | Dados | Alta | Médio | **6** | Mitigar | Modelar a diferença entre estados, mais estável que o nível de preço; automatizar a ingestão na US14 | Luca |
+| **R3** | Prioridade e periodicidade de visita não existem em base pública | Dados | Alta | Alto | **9** | Transferir | A área de negócio fornece o dado no piloto; até lá, campos simulados e declarados como tal | Victor |
+| **R4** | Modelo de preço perde precisão num choque de mercado (drift) | Modelo | Média | Médio | **4** | Mitigar | Reavaliar a cada atualização da série; alerta acima de R$ 0,25/L | Luca |
+| **R5** | Sequência por varredura gera rotas com ida e volta | Modelo | Alta | Médio | **6** | Aceitar | Declarado na interface e no backlog; otimização na US12 | Victor |
+| **R6** | Sprint 1 cheia demais para o grupo, que concilia provas | Prazo | Média | Médio | **4** | Mitigar | Sprint 1 com 19 dos 20 pontos; story maior (US11) puxada primeiro | Davi |
+| **R7** | Agenda e histórico do gerente seriam dados pessoais em produção | Privacidade | Baixa | Alto | **3** | Evitar | MVP sem dados pessoais; base legal e acesso mínimo antes da implantação | Gabriel |
 
 Riscos de dados: R1, R2 e R3. Riscos de modelo: R4 e R5.
 
@@ -179,6 +179,11 @@ Riscos de dados: R1, R2 e R3. Riscos de modelo: R4 e R5.
 Vermelho (exposição 6 ou mais): R1, R2, R3 e R5 — tratados antes ou durante a
 Sprint 1. Amarelo (3 a 4): R4, R6 e R7 — com resposta e dono definidos.
 
+**Divisão de responsabilidades:** cada integrante é dono dos riscos da frente
+que conduz — Gabriel na base de agências (R1, R7), Luca no modelo de preço
+(R2, R4), Victor no negócio e na rota (R3, R5) e Davi na gestão do repositório
+e do prazo (R6).
+
 ---
 
 ## 4. Plano da Sprint 1
@@ -189,10 +194,10 @@ contra o baseline.
 
 | Item | Pontos | Pacotes da WBS | Responsável |
 | --- | --- | --- | --- |
-| US10 · Agências no lugar certo do mapa | 5 | 3.1, 3.2, 3.3 | _a definir_ |
-| US11 · Preço de combustível por estado | 8 | 3.4, 4.2, 5.1 | _a definir_ |
-| US05 · Modal por trecho | 3 | 4.3 | _a definir_ |
-| Testes automatizados e pull request revisado | 3 | 7.1, 7.2 | _a definir_ |
+| US10 · Agências no lugar certo do mapa | 5 | 3.1, 3.2, 3.3 | Gabriel |
+| US11 · Preço de combustível por estado | 8 | 3.4, 4.2, 5.1 | Luca |
+| US05 · Modal por trecho | 3 | 4.3 | Victor |
+| Testes automatizados e pull request revisado | 3 | 7.1, 7.2 | Davi |
 | **Total** | **19** | | |
 
 **Capacidade:** 20 pontos. **Selecionado:** 19 pontos.
@@ -226,7 +231,7 @@ R1, R2, R4 e R6.
 | US10 | Entregue — 74,7% com coordenada de bairro (meta: 70%) |
 | US11 | Entregue — MAE R$ 0,095/L (meta: até R$ 0,15/L e 25% abaixo do baseline) |
 | US05 | Entregue — avião indisponível abaixo de 150 km e modal desligado nunca recomendado |
-| Testes e PR | 23 testes passando; pull request #15 revisado, com três comentários respondidos |
+| Testes e PR | 23 testes passando; pull request #15 revisado pelo Davi, três comentários resolvidos e merge feito |
 
 ---
 
