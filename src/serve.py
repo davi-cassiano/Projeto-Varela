@@ -22,7 +22,6 @@ otimizada de visitas).
 from __future__ import annotations
 
 import json
-import math
 import re
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
