@@ -113,3 +113,18 @@ também em [`docs/plano-melhoria.md`](plano-melhoria.md), e cada ação é uma I
   perguntarmos "onde está o teste do critério da US04?".
 - A próxima autoavaliação deve ser feita no fim da próxima sprint, com este mesmo checklist,
   para saber se as três ações mudaram as notas.
+
+## 6. Reavaliação ao fim do ciclo (12/11/2026, depois das ações)
+
+O mesmo checklist, aplicado depois do ciclo de qualidade e da sprint final, para
+saber se as ações mudaram as notas. Nota F exige consistência ao longo de vários
+ciclos; com um ciclo só, o máximo honesto é L.
+
+| Área | Antes | Depois | O que mudou | O que ainda falta para F |
+| --- | --- | --- | --- | --- |
+| Requisitos | L | **L** | 14 de 14 stories com critério verificado (US12 e US14 por teste automático) | Validação das stories de interface com um gerente real |
+| Planejamento | P | **L** | Sprints não executadas registradas; replanejamento; sprint final com meta, pontos e resultado; tabela de medições | Mais de um ciclo acompanhado |
+| Configuração | L | **L** | CI em cada PR; produto regenerado pelo pipeline | `main` protegida, tags de versão, branches antigas apagadas |
+| Qualidade | P | **L** | 6 regras de dados com relatório e SBAR; 96 testes, 88% de cobertura; ruff; CI; PRs revisados com bloqueia/sugestão | Validação de dados bloqueando o merge quando uma regra nova falhar; mais ciclos |
+| Medição | P | **L** | Tabela por ciclo com velocidade, testes, cobertura, MAE e regras; monitor semanal do modelo | Histórico de vários ciclos |
+| Riscos | P | **L** | Matriz revisada com data; R6 registrado como ocorrido; R1 e R2 medidos por regra de qualidade | Revisão em toda retrospectiva, não só nesta |
