@@ -34,10 +34,9 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - name: Regras de qualidade sobre o recorte versionado
-        # Uma regra de dados reprovada é um achado, não um defeito de código:
-        # o passo registra o resultado e publica o relatório, sem bloquear o merge.
-        run: python -m src.validate --amostra
-        continue-on-error: true
+        # Falha conhecida (registrada na linha de base) é achado e não bloqueia;
+        # regra que passava e regrediu bloqueia o merge (revisão do PR #28).
+        run: python -m src.validate --amostra --linha-de-base dados/colab/qualidade_linha_de_base.json
       - name: Publicar relatório de qualidade
         uses: actions/upload-artifact@v4
         with:

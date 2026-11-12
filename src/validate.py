@@ -37,7 +37,12 @@ LON_BRASIL = (-74.0, -34.5)
 
 # Limites: decisão do time, registrados aqui para a falha ser objetiva
 MAX_NULOS = 0.01            # até 1% de nulos por coluna obrigatória
-MAX_DESCARTE_BAIRRO = 0.10  # até 10% das agências perdendo a coordenada de bairro
+# Até 10% das agências perdendo a coordenada de bairro. Definido antes da medição
+# (revisão do PR #28): uma em dez agências com distância menos precisa é o máximo
+# que aceitamos num produto de deslocamento. O teste de sensibilidade do PR #15
+# mostrou que nenhum limite único atinge 10% (100 km ainda descarta 10,7%); a
+# regra é uma meta que só o limite proporcional ao município (Issue #16) cumpre.
+MAX_DESCARTE_BAIRRO = 0.10
 MIN_COBERTURA_BAIRRO = 0.70 # critério da US10
 MAX_IDADE_PRECOS_DIAS = 90  # série de preços com no máximo um trimestre de atraso
 FAIXA_PRECO = (0.5, 15.0)
@@ -208,8 +213,21 @@ def _carregar_bases(dados: str, brutos: str):
     return agencias, features.enriquecer_coordenadas(agencias, bairros), precos
 
 
+def regressoes(resultados: list[Resultado], linha_de_base: str) -> list[str]:
+    """Regras que passavam na linha de base e agora falham (revisão do PR #28).
+
+    Uma falha já conhecida é um achado registrado; uma regra que regrediu é
+    um defeito novo e deve bloquear o merge. A linha de base é o JSON com as
+    regras que passavam na última execução aceita pelo time."""
+    with open(linha_de_base, encoding="utf-8") as f:
+        passavam = set(json.load(f)["regras_que_passam"])
+    return [r.regra for r in resultados if r.regra in passavam and not r.passou]
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="Regras de qualidade de dados")
+    p.add_argument("--linha-de-base", default=None,
+                   help="JSON com as regras que passavam; sai com erro só se alguma delas regredir")
     p.add_argument("--sem-download", action="store_true", help="não baixar bases auxiliares")
     p.add_argument("--amostra", action="store_true",
                    help="validar o recorte versionado em dados/colab/ (sem as bases brutas)")
@@ -231,6 +249,11 @@ def main() -> None:
     hoje = date.today()
     gravar(resultados, os.path.join(dados, "saida"), hoje)
     print(relatorio_markdown(resultados, hoje))
+    if args.linha_de_base:
+        reg = regressoes(resultados, args.linha_de_base)
+        for r in reg:
+            print(f"REGRESSÃO: '{r}' passava na linha de base e agora falha")
+        raise SystemExit(1 if reg else 0)
     raise SystemExit(0 if all(r.passou for r in resultados) else 1)
 
 

@@ -67,7 +67,7 @@ a regra 5 afeta a distância de 290 agências e tem correção já em andamento 
 | Frescor | Regra 6 | 90 dias | Luca |
 | Esquema | `exigir_colunas` no `ingest.py` quebra a carga se faltar coluna | 0 colunas ausentes | Gabriel |
 | Distribuição | MAE do modelo por mês (`train.erro_por_mes`) | alerta acima de R$ 0,25/L (RNF06) | Luca |
-| Regras de negócio | `python -m src.validate` no CI, a cada pull request | 6 regras com resultado registrado | Davi |
+| Regras de negócio | `python -m src.validate` no CI, a cada pull request, contra a linha de base `dados/colab/qualidade_linha_de_base.json` | falha conhecida não bloqueia; regra que regrediu bloqueia o merge | Davi |
 
 O relatório de cada execução fica em `dados/saida/relatorio_qualidade.json`; guardar
 o histórico permite ver a qualidade ao longo do tempo, como a aula recomenda.

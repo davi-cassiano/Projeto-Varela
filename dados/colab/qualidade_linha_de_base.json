@@ -1,0 +1,13 @@
+{
+  "atualizado_em": "2026-11-12",
+  "regras_que_passam": [
+    "Um registro por agência",
+    "Colunas obrigatórias preenchidas",
+    "UF, CEP e coordenadas em faixas válidas",
+    "Município (código IBGE) pertence à UF informada"
+  ],
+  "falhas_conhecidas": {
+    "Coordenada de bairro coerente com o município (≤ 30 km)": "Issue #16",
+    "Série de preços única, válida e atual": "o recorte versionado termina em 2021; com --atualizar-precos a regra passa (US14)"
+  }
+}
