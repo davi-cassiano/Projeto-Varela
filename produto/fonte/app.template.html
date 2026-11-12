@@ -410,7 +410,7 @@ __CSS_RESULTADO__
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 /* ---------- entrada (identificação, sem senha) ---------- */
 .entrada{
-  position:fixed;inset:0;z-index:100;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(380px,.85fr);
+  position:fixed;inset:0;z-index:100;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(400px,.75fr);
   background:var(--tela);
 }
 .entrada[hidden]{display:none}
@@ -419,18 +419,33 @@ __CSS_RESULTADO__
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.08' stroke-width='1'%3E%3Cpath d='M-20 60c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 100c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 140c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 180c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 220c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 20c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3C/g%3E%3C/svg%3E");
   display:flex;flex-direction:column;justify-content:space-between;padding:48px 56px;
 }
-.entrada-mapa svg.brasil{position:absolute;right:-6%;top:50%;transform:translateY(-50%);width:62%;height:auto;opacity:.95;pointer-events:none}
+.entrada-mapa svg.brasil{position:absolute;right:-4%;top:50%;transform:translateY(-52%);width:66%;height:auto;pointer-events:none}
+.entrada-mapa svg.brasil .estado{fill:rgba(255,255,255,.045);stroke:rgba(255,255,255,.28);stroke-width:.7;transition:fill .5s ease}
+.entrada-mapa svg.brasil .estado.ativo{fill:rgba(201,135,31,.22);stroke:rgba(201,135,31,.9);stroke-width:1.1}
+.entrada-mapa svg.brasil .sede{fill:rgba(255,255,255,.35)}
+.entrada-mapa svg.brasil .agencia{fill:#E8B45C;opacity:0;animation:surgir .5s ease forwards}
+.entrada-mapa svg.brasil .sede-ativa{fill:#fff;stroke:#C9871F;stroke-width:3}
+.entrada-mapa svg.brasil .pulso{fill:none;stroke:#C9871F;stroke-width:2;transform-box:fill-box;transform-origin:center;animation:pulsar 2.2s ease-out infinite}
+@keyframes surgir{to{opacity:1}}
+@keyframes pulsar{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+@media (prefers-reduced-motion:reduce){.entrada-mapa svg.brasil .agencia{animation:none;opacity:1}.entrada-mapa svg.brasil .pulso{animation:none;display:none}}
+.entrada-regional-nome{position:absolute;left:0;right:0;bottom:-6px;text-align:center;pointer-events:none}
 .entrada-marca{font-family:var(--serif);font-size:20px;color:#fff;font-weight:600;line-height:1.15}
 .entrada-marca small{display:block;font-family:var(--sans);font-size:12px;color:#9DB3AD;font-weight:400;margin-top:4px}
 .entrada-titulo{position:relative;max-width:520px}
-.entrada-titulo h1{font-family:var(--serif);font-size:54px;line-height:1.02;color:#fff;font-weight:500;letter-spacing:-.02em;font-variation-settings:'opsz' 144}
+.entrada-titulo h1{font-family:var(--serif);font-size:60px;line-height:1.0;color:#fff;font-weight:500;letter-spacing:-.025em;font-variation-settings:'opsz' 144;max-width:9ch}
 .entrada-titulo h1 em{font-style:italic;color:var(--placa)}
 .entrada-titulo p{margin:18px 0 0;font-size:15px;line-height:1.55;color:#C5D2CC;max-width:44ch}
 .entrada-numeros{position:relative;display:flex;gap:34px;font-variant-numeric:tabular-nums}
 .entrada-numeros b{display:block;font-family:var(--serif);font-size:30px;font-weight:500;color:#fff;line-height:1}
 .entrada-numeros span{font-size:12px;color:#9DB3AD}
-.entrada-form{display:flex;align-items:center;justify-content:center;padding:40px 48px}
-.entrada-cartao{width:100%;max-width:400px}
+.entrada-form{display:flex;align-items:center;justify-content:center;padding:40px 48px;position:relative}
+.entrada-form::before{content:"";position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--linha-forte)}
+.entrada-cartao{width:100%;max-width:400px;background:var(--papel);border:1px solid var(--linha-forte);border-top:3px solid var(--placa);border-radius:var(--raio);padding:32px 30px 26px}
+.entrada-data{font-size:12.5px;color:var(--texto-tenue);margin-bottom:14px}
+.entrada-previa{display:flex;gap:18px;margin:-6px 0 18px;padding:12px 14px;background:var(--tela);border-radius:var(--raio);font-variant-numeric:tabular-nums}
+.entrada-previa b{display:block;font-family:var(--serif);font-size:22px;font-weight:500;line-height:1}
+.entrada-previa span{font-size:11.5px;color:var(--texto-fraco)}
 .entrada-cartao h2{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-.015em;line-height:1.1}
 .entrada-cartao .sub{color:var(--texto-fraco);font-size:13.5px;margin:8px 0 28px;line-height:1.5}
 .campo{display:block;margin-bottom:16px}
@@ -482,13 +497,14 @@ __CSS_RESULTADO__
   </section>
   <section class="entrada-form">
     <form class="entrada-cartao" id="form-entrada" autocomplete="off">
-      <h2>Entrar</h2>
+      <div class="entrada-data" id="entrada-data"></div>
+      <h2>Bom dia, gerente.</h2>
       <p class="sub">Identifique-se para abrir o painel da sua regional. Sem senha neste protótipo: em produção a entrada é pelo login corporativo do banco.</p>
       <label class="campo"><span>Seu nome</span>
         <input id="entrada-nome" value="Rafael Menezes" required maxlength="60"></label>
       <label class="campo"><span>Regional</span>
-        <select id="entrada-regional"></select>
-        <small class="ajuda">A regional define quais agências você vê e planeja.</small></label>
+        <select id="entrada-regional"></select></label>
+      <div class="entrada-previa" id="entrada-previa"></div>
       <label class="lembrar"><input type="checkbox" id="entrada-lembrar" checked> Lembrar neste navegador</label>
       <button class="btn btn-principal" type="submit">Abrir o painel</button>
       <p class="entrada-rodape"><b>Dados públicos.</b> Agências do cadastro do Banco Central; preços de combustível da ANP. Nenhum dado pessoal é guardado além do nome que você digitar, neste navegador.</p>
@@ -1552,16 +1568,29 @@ function desenharBrasilEntrada() {
   const pts = DADOS.estados.flatMap((e) => e.aneis.flat());
   const lons = pts.map((p) => p[0]), lats = pts.map((p) => p[1]);
   const x0 = Math.min(...lons), x1 = Math.max(...lons), y0 = Math.min(...lats), y1 = Math.max(...lats);
-  const esc = Math.min(640 / (x1 - x0), 470 / (y1 - y0));
-  const P = ([lon, lat]) => `${((lon - x0) * esc + 20).toFixed(1)} ${((y1 - lat) * esc + 15).toFixed(1)}`;
+  const escala = Math.min(640 / (x1 - x0), 470 / (y1 - y0));
+  const P = ([lon, lat]) => `${((lon - x0) * escala + 20).toFixed(1)} ${((y1 - lat) * escala + 15).toFixed(1)}`;
   const regionalAtual = () => +$("#entrada-regional").value;
+  const xy = (lon, lat) => P([lon, lat]).split(" ");
   const pintar = () => {
     const sel = DADOS.regionais.find((r) => r.id === regionalAtual());
     const ufs = new Set(sel ? sel.ufs : []);
-    svg.innerHTML = DADOS.estados.map((e) => `<path d="${e.aneis.map((a) => "M" + a.map(P).join("L") + "Z").join("")}"
-        fill="${ufs.has(e.uf) ? "#C9871F" : "rgba(255,255,255,.06)"}" fill-opacity="${ufs.has(e.uf) ? ".85" : "1"}"
-        stroke="rgba(255,255,255,.35)" stroke-width=".8"/>`).join("") +
-      (sel ? `<circle cx="${P([sel.sede.lon, sel.sede.lat]).split(" ")[0]}" cy="${P([sel.sede.lon, sel.sede.lat]).split(" ")[1]}" r="6" fill="#fff" stroke="#C9871F" stroke-width="3"/>` : "");
+    const estados = DADOS.estados.map((e) => `<path class="estado ${ufs.has(e.uf) ? "ativo" : ""}"
+        d="${e.aneis.map((a) => "M" + a.map(P).join("L") + "Z").join("")}"/>`).join("");
+    const sedes = DADOS.regionais.filter((r) => !sel || r.id !== sel.id)
+      .map((r) => { const [x, y] = xy(r.sede.lon, r.sede.lat); return `<circle class="sede" cx="${x}" cy="${y}" r="1.8"/>`; }).join("");
+    const agencias = sel ? DADOS.agencias.filter((a) => a.regional === sel.id)
+      .map((a, i) => { const [x, y] = xy(a.lon, a.lat); return `<circle class="agencia" cx="${x}" cy="${y}" r="2.6" style="animation-delay:${(i * 18)}ms"/>`; }).join("") : "";
+    const [sx, sy] = sel ? xy(sel.sede.lon, sel.sede.lat) : [0, 0];
+    svg.innerHTML = estados + sedes + agencias +
+      (sel ? `<circle class="pulso" cx="${sx}" cy="${sy}" r="9"/><circle class="sede-ativa" cx="${sx}" cy="${sy}" r="5.5"/>` : "");
+    if (sel) {
+      $("#entrada-previa").innerHTML = `
+        <div><b>${sel.agencias}</b><span>agências</span></div>
+        <div><b>${sel.municipios}</b><span>municípios</span></div>
+        <div><b>${sel.extensaoKm} km</b><span>maior distância</span></div>
+        <div><b>${sel.ufs.join(", ")}</b><span>sede em ${esc(sel.sede.municipio)}</span></div>`;
+    }
   };
   $("#entrada-regional").addEventListener("change", pintar);
   pintar();
@@ -1574,6 +1603,9 @@ function mostrarEntrada() {
   const padrao = DADOS.regionais.find((r) => r.nome.startsWith("Goiânia")) || DADOS.regionais[0];
   sel.value = padrao.id;
   $("#entrada-n-ag").textContent = DADOS.agencias.length.toLocaleString("pt-BR");
+  const h = new Date().getHours();
+  $("#form-entrada h2").textContent = (h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite") + ", gerente.";
+  $("#entrada-data").textContent = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   $("#entrada-n-reg").textContent = DADOS.regionais.length;
   desenharBrasilEntrada();
   $("#entrada").hidden = false;
