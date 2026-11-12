@@ -115,7 +115,9 @@ def enriquecer_coordenadas(agencias: pd.DataFrame, bairros: pd.DataFrame,
         if coord is None:
             coord, precisao = (a.latitude, a.longitude), "municipio"
 
-        lats.append(coord[0]); lons.append(coord[1]); precisoes.append(precisao)
+        lats.append(coord[0])
+        lons.append(coord[1])
+        precisoes.append(precisao)
 
     saida = agencias.copy()
     saida["lat"], saida["lon"], saida["precisao"] = lats, lons, precisoes

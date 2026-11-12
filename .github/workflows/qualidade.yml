@@ -1,0 +1,44 @@
+# Qualidade (Aula 9): análise estática, testes com cobertura e validação de dados
+# em cada push e pull request. Falha de ruff ou de teste bloqueia o merge.
+name: qualidade
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  codigo:
+    name: ruff e pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Análise estática (ruff)
+        run: ruff check src/ tests/ sql/
+      - name: Testes com cobertura (pytest)
+        run: pytest --cov=src --cov-fail-under=70 --cov-report=term-missing
+
+  dados:
+    name: validação de dados
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Regras de qualidade sobre o recorte versionado
+        # Falha conhecida (registrada na linha de base) é achado e não bloqueia;
+        # regra que passava e regrediu bloqueia o merge (revisão do PR #28).
+        run: python -m src.validate --amostra --linha-de-base dados/colab/qualidade_linha_de_base.json
+      - name: Publicar relatório de qualidade
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-qualidade
+          path: dados/saida/relatorio_qualidade.*

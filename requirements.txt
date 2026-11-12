@@ -11,3 +11,5 @@ shapely>=2.0           # simplificação da geometria dos estados para o mapa
 requests>=2.31         # download das bases auxiliares
 matplotlib>=3.7        # gráfico de erro do modelo
 pytest>=8.0            # testes automatizados
+pytest-cov>=5.0        # cobertura dos testes
+ruff>=0.6              # análise estática

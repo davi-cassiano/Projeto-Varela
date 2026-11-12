@@ -161,7 +161,7 @@ class EstimadorPreco(ABC):
     nome = "estimador"
 
     @abstractmethod
-    def ajustar(self, treino: pd.DataFrame) -> "EstimadorPreco":
+    def ajustar(self, treino: pd.DataFrame) -> EstimadorPreco:
         ...
 
     @abstractmethod

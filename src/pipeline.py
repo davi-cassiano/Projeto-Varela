@@ -19,8 +19,6 @@ import json
 import os
 import time
 
-import pandas as pd
-
 from . import features, ingest, serve, train
 
 DADOS = "dados"

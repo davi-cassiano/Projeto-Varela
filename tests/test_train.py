@@ -7,10 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.train import (BaselineNacional, RegressaoEstado, avaliar,
-                       separar_no_tempo, treinar_regionais)
-
-
+from src.train import BaselineNacional, RegressaoEstado, avaliar, separar_no_tempo, treinar_regionais
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TSV_ANP = os.path.join(RAIZ, "dados", "brutos", "2004-2021.tsv")
