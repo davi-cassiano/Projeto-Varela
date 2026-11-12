@@ -56,6 +56,7 @@ vira backlog, o backlog vira arquitetura e a arquitetura vira plano.
 | Aula 9 · Qualidade de dados | 6 regras em Python e SQL, relatório, SBAR da pior falha, governança e monitoramento | [`docs/qualidade.md`](docs/qualidade.md), [`src/validate.py`](src/validate.py), [`sql/qualidade.sql`](sql/qualidade.sql) |
 | Aula 9 · Testes e CI | 79 testes (bordas, parametrização, fumaça do pipeline), ruff, 88% de cobertura, GitHub Actions | [`tests/`](tests), [`.github/workflows/qualidade.yml`](.github/workflows/qualidade.yml) |
 | Aula 9 · Revisão de PR | Pull request revisado por colega com a lista da aula | PRs #28 e #29 |
+| Aula 10 · Apresentação final | Pitch, demonstração e análise crítica da gestão e da qualidade | [`docs/apresentacao-final.pptx`](docs/apresentacao-final.pptx) |
 
 ### Sprint final · 12/11 — produto completo
 
@@ -317,6 +318,7 @@ conexão.
 │   ├── planejamento.md  WBS, estimativas, riscos e Sprint 1 (Aula 6)
 │   ├── apresentacao-checkpoint-1-3.pptx   apresentação das Aulas 1 a 3
 │   ├── apresentacao-checkpoint-4-6.pptx   apresentação das Aulas 4 a 6
+│   ├── apresentacao-final.pptx            apresentação final (Aula 10)
 │   └── img/             gráficos
 ├── requirements.txt
 └── README.md
