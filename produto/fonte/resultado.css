@@ -21,27 +21,28 @@
 .processando .medida{font-size:12.5px;color:var(--texto-tenue);margin-top:24px}
 
 /* ---------- resultado ---------- */
-.resumo-topo{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
-.res{background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);padding:16px 17px;box-shadow:var(--sombra)}
+.resumo-topo{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:18px;background:var(--papel);border:1px solid var(--linha-forte);border-top:2px solid var(--tinta);border-radius:var(--raio);overflow:hidden}
+.res{padding:16px 18px 15px;border-left:1px solid var(--linha)}
+.res:first-child{border-left:0}
 .res-rot{font-size:12.5px;color:var(--texto-fraco)}
-.res-val{font-family:'IBM Plex Serif',serif;font-size:27px;font-weight:600;margin-top:7px;line-height:1.1;font-variant-numeric:tabular-nums}
+.res-val{font-family:var(--serif);font-size:32px;font-weight:500;margin-top:6px;line-height:1;font-variant-numeric:tabular-nums;font-variation-settings:'opsz' 144;letter-spacing:-.02em}
 .res-sub{font-size:12px;color:var(--texto-tenue);margin-top:4px;font-variant-numeric:tabular-nums}
-.res.ganho{border-color:#B7DCD2;background:var(--ganho-fraco)}
+.res.ganho{background:var(--ganho-fraco);box-shadow:inset 0 3px 0 var(--ganho)}
 .res.ganho .res-val{color:var(--ganho)}
 .res.ganho .res-rot{color:#2C6B5D}
 
 .resultado-colunas{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
 
 /* mapa */
-.mapa-caixa{background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);box-shadow:var(--sombra);overflow:hidden;position:sticky;top:80px}
+.mapa-caixa{background:var(--papel);border:1px solid var(--linha-forte);border-top:2px solid var(--tinta);border-radius:var(--raio);overflow:hidden;position:sticky;top:80px}
 .mapa{position:relative;background:#DCE6EE}
 .mapa svg{display:block;width:100%;height:auto;touch-action:none;cursor:grab}
 .mapa svg.arrastando{cursor:grabbing}
 .mapa .etiqueta{
-  font-family:'IBM Plex Sans',sans-serif;font-weight:500;fill:#263D52;
+  font-family:var(--sans);font-weight:600;fill:#263D52;
   paint-order:stroke;stroke:#FFFFFF;stroke-linejoin:round;
 }
-.mapa text{font-family:'IBM Plex Sans',sans-serif}
+.mapa text{font-family:var(--sans)}
 .mapa .cidade-rot{
   fill:#6E8398;paint-order:stroke;stroke:#FFFFFF;stroke-opacity:.85;stroke-linejoin:round;
 }
@@ -91,7 +92,7 @@
   background:#F4F7FA;border-bottom:1px solid var(--linha);border-top:1px solid var(--linha);
 }
 .dia-cab:first-child{border-top:0}
-.dia-cab h3{font-size:13.5px;font-family:'IBM Plex Sans',sans-serif;font-weight:600}
+.dia-cab h3{font-size:13.5px;font-family:var(--sans);font-weight:700;letter-spacing:.01em}
 .dia-cab .m{margin-left:auto;font-size:12px;color:var(--texto-fraco);font-variant-numeric:tabular-nums}
 
 .trecho{border-bottom:1px solid var(--linha)}

@@ -15,7 +15,7 @@
 
 const MAPA_L = 680, MAPA_A = 500, MAPA_M = 62;
 
-const COR_MODAL = { carro: "#12263A", onibus: "#0E7C66", aviao: "#9A5B12" };
+const COR_MODAL = { carro: "#16303A", onibus: "#0E7C66", aviao: "#9A5B12" };
 
 /* ---------- projeção ---------- */
 function projetorMapa(pontos) {
@@ -74,12 +74,12 @@ function desenharEstados(proj, ufsDaRota, v) {
     const rotulo = dentro
       ? `<text x="${c.x.toFixed(1)}" y="${c.y.toFixed(1)}" text-anchor="middle"
            font-size="${(11 * k).toFixed(1)}" font-weight="600"
-           fill="${realce ? "#5C8378" : "#9BABBB"}" pointer-events="none">${e.uf}</text>`
+           fill="${realce ? "#6E7F73" : "#A3ADA2"}" font-family="Fraunces, Georgia, serif" font-style="italic" letter-spacing="${(2 * k).toFixed(1)}" pointer-events="none">${e.uf}</text>`
       : "";
 
-    return `<path d="${d}" fill="${realce ? "#DEE9E5" : "#E7EDF3"}"
-              stroke="${realce ? "#9FBDB4" : "#CBD6E1"}"
-              stroke-width="${(0.9 * k).toFixed(2)}" pointer-events="none"/>${rotulo}`;
+    return `<path d="${d}" fill="${realce ? "#F2F1E6" : "#ECEDE4"}"
+              stroke="${realce ? "#8E9D8C" : "#B9C2B6"}"
+              stroke-width="${((realce ? 1.4 : 0.9) * k).toFixed(2)}" pointer-events="none"/>${rotulo}`;
   }).join("");
 }
 
@@ -302,8 +302,8 @@ function desenharMapa(rt) {
     const aereo = t.escolha.modal === "aviao";
     return `
       <g data-segmento="${t.indice}" style="cursor:pointer">
-        <path d="${d}" fill="none" stroke="#FFFFFF" stroke-opacity=".8"
-              stroke-width="${(5.6 * k).toFixed(2)}" stroke-linecap="round" pointer-events="none"/>
+        <path d="${d}" fill="none" stroke="#FFFFFF" stroke-opacity=".95" filter="url(#sombra-rota)"
+              stroke-width="${(6.2 * k).toFixed(2)}" stroke-linecap="round" pointer-events="none"/>
         <path d="${d}" fill="none" stroke="${cor}"
               stroke-width="${((ativo ? 3.8 : 2.2) * k).toFixed(2)}"
               stroke-linecap="round" stroke-linejoin="round"
@@ -353,7 +353,7 @@ function desenharMapa(rt) {
 
     const fio = q.ancora
       ? `<line x1="${q.ancora.x.toFixed(1)}" y1="${q.ancora.y.toFixed(1)}"
-           x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" stroke="#12263A" stroke-opacity=".45"
+           x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" stroke="#16303A" stroke-opacity=".45"
            stroke-width="${(1.1 * k).toFixed(2)}" pointer-events="none"/>`
       : "";
 
@@ -368,9 +368,9 @@ function desenharMapa(rt) {
       <g data-segmento="${t ? t.indice : ""}" tabindex="0" role="button" style="cursor:pointer"
          aria-label="Parada ${i + 1}, ${esc(a.nome)}, ${esc(a.municipio)}">
         <circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="${(r + 5 * k).toFixed(1)}"
-                fill="#12263A" fill-opacity="${ativo ? ".16" : "0"}"/>
+                fill="#16303A" fill-opacity="${ativo ? ".16" : "0"}"/>
         <circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="${r.toFixed(1)}"
-                fill="${ativo ? "#0E7C66" : "#12263A"}" stroke="#FFFFFF"
+                fill="${ativo ? "#0E7C66" : "#16303A"}" stroke="#FFFFFF"
                 stroke-width="${(2 * k).toFixed(2)}"/>
         <text x="${q.x.toFixed(1)}" y="${(q.y + 3.8 * k).toFixed(1)}" text-anchor="middle"
               font-size="${(11 * k).toFixed(1)}" font-weight="600" fill="#FFFFFF"
@@ -383,7 +383,16 @@ function desenharMapa(rt) {
     <div class="mapa" id="mapa-area">
       <svg id="mapa-svg" viewBox="${v.x} ${v.y} ${v.w} ${v.h}"
            role="img" aria-label="Mapa da rota planejada sobre o território brasileiro">
-        <rect x="${v.x}" y="${v.y}" width="${v.w}" height="${v.h}" fill="#DCE6EE"/>
+        <defs>
+          <pattern id="grade-mapa" width="${(40 * k).toFixed(2)}" height="${(40 * k).toFixed(2)}" patternUnits="userSpaceOnUse">
+            <path d="M${(40 * k).toFixed(2)} 0H0V${(40 * k).toFixed(2)}" fill="none" stroke="#16303A" stroke-opacity=".07" stroke-width="${(0.8 * k).toFixed(2)}"/>
+          </pattern>
+          <filter id="sombra-rota" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="${(1.2 * k).toFixed(2)}" stdDeviation="${(1.4 * k).toFixed(2)}" flood-color="#16303A" flood-opacity=".28"/>
+          </filter>
+        </defs>
+        <rect x="${v.x}" y="${v.y}" width="${v.w}" height="${v.h}" fill="#E3E7DE"/>
+        <rect x="${v.x}" y="${v.y}" width="${v.w}" height="${v.h}" fill="url(#grade-mapa)"/>
         <g>${desenharEstados(proj, ufs, v)}</g>
         <g>${desenharCidades(proj, v, ocupados)}</g>
         <g class="fora-rota">${contexto.map(({ a, q }) => `
@@ -397,8 +406,8 @@ function desenharMapa(rt) {
         ${setas}
         <g aria-label="Ponto de partida">
           <circle cx="${o.x.toFixed(1)}" cy="${o.y.toFixed(1)}" r="${(10.5 * k).toFixed(1)}"
-                  fill="#FFFFFF" stroke="#12263A" stroke-width="${(2.6 * k).toFixed(2)}"/>
-          <path d="M-4.4 1L0 -3.3L4.4 1M-2.9 0.4V4.4h5.8V0.4" fill="none" stroke="#12263A"
+                  fill="#C9871F" stroke="#FFFFFF" stroke-width="${(2.6 * k).toFixed(2)}" filter="url(#sombra-rota)"/>
+          <path d="M-4.4 1L0 -3.3L4.4 1M-2.9 0.4V4.4h5.8V0.4" fill="none" stroke="#16303A"
                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
                 transform="translate(${o.x.toFixed(1)},${o.y.toFixed(1)}) scale(${k.toFixed(2)})"
                 pointer-events="none"/>
@@ -515,7 +524,7 @@ function pintarMapa(rt) {
    para que o efeito do filtro seja visível no mapa e não só na lista.
    ===================================================================== */
 
-const COR_PRIORIDADE = { alta: "#9A5B12", media: "#12263A", baixa: "#7E93A8" };
+const COR_PRIORIDADE = { alta: "#9A5B12", media: "#16303A", baixa: "#7E93A8" };
 
 function desenharMapaAgencias(todas, visiveis) {
   const proj = projetorMapa(todas);
@@ -582,7 +591,16 @@ function desenharMapaAgencias(todas, visiveis) {
     <div class="mapa" id="mapa-ag-area">
       <svg id="mapa-ag-svg" viewBox="${v.x} ${v.y} ${v.w} ${v.h}"
            role="img" aria-label="Mapa das agências da regional">
-        <rect x="${v.x}" y="${v.y}" width="${v.w}" height="${v.h}" fill="#DCE6EE"/>
+        <defs>
+          <pattern id="grade-mapa" width="${(40 * k).toFixed(2)}" height="${(40 * k).toFixed(2)}" patternUnits="userSpaceOnUse">
+            <path d="M${(40 * k).toFixed(2)} 0H0V${(40 * k).toFixed(2)}" fill="none" stroke="#16303A" stroke-opacity=".07" stroke-width="${(0.8 * k).toFixed(2)}"/>
+          </pattern>
+          <filter id="sombra-rota" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="${(1.2 * k).toFixed(2)}" stdDeviation="${(1.4 * k).toFixed(2)}" flood-color="#16303A" flood-opacity=".28"/>
+          </filter>
+        </defs>
+        <rect x="${v.x}" y="${v.y}" width="${v.w}" height="${v.h}" fill="#E3E7DE"/>
+        <rect x="${v.x}" y="${v.y}" width="${v.w}" height="${v.h}" fill="url(#grade-mapa)"/>
         <g>${desenharEstados(proj, ufs, v)}</g>
         <g>${desenharCidades(proj, v, ocupados)}</g>
         ${pontos}
