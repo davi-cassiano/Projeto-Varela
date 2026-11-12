@@ -285,7 +285,7 @@ Onda 2, com critério de aceite verificado por teste.
 
 | Item | Pontos | Critério verificado | Dono |
 | --- | --- | --- | --- |
-| US12 · Sequência otimizada | 8 | 20 seleções reais: nunca pior que a varredura, **12,2% menor na média** (`tests/test_sequencia.py`) | Victor |
+| US12 · Sequência otimizada | 8 | 20 seleções reais: nunca pior que a varredura, **12,2% menor na média** (`tests/test_sequencia.py`); 40 agências em ~1,4 ms no navegador | Victor |
 | US14 · Preços atualizados automaticamente | 5 | `AnpSource` lê a publicação oficial; série até 07/11/2026; monitor com alerta acima de R$ 0,25/L (MAE recente **R$ 0,105/L**); workflow semanal (`tests/test_monitor.py`) | Luca |
 | US09 · Salvar e exportar | 5 | Exportação em A4 com parâmetros, itinerário, totais e comparação (impressão do navegador) | Gabriel |
 | US13 · Painel consolidado | 3 | % de agências dentro da periodicidade contra a meta de 90% e custo acumulado dos planejamentos salvos | Gabriel |
@@ -312,7 +312,7 @@ acompanhadas e não medidas uma vez só.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Sprint 1 | 15/10/2026 | 20 / 19 | 23 | não medida | 0,095 | não havia | não |
 | Ciclo de qualidade | 12/11/2026 | — | 79 | 88% | 0,095 (sem nova série) | 4 de 6 passam | sim |
-| Sprint final | 12/11/2026 | 24 / 24 | 96 | 88% | 0,116 (série da ANP até 11/2026; teste 2020–2026) · 0,105 nas últimas 4 semanas | 5 de 6 passam com a série atual | sim |
+| Sprint final | 12/11/2026 | 24 / 24 | 98 | 88% | 0,116 (série da ANP até 11/2026; teste 2020–2026) · 0,105 nas últimas 4 semanas | 5 de 6 passam com a série atual | sim |
 
 Como medir: `pytest --cov=src` para testes e cobertura; `python -m src.pipeline`
 imprime o MAE; `python -m src.validate` gera o relatório de qualidade.
