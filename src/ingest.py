@@ -52,6 +52,59 @@ class TsvSource(CsvSource):
         super().__init__(caminho, sep="\t", **opcoes)
 
 
+URL_ANP_SEMANAL = ("https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/"
+                   "precos-revenda-e-de-distribuicao-combustiveis/shlp/semanal/semanal-estados-desde-2013.xlsx")
+
+
+class AnpSource(DataSource):
+    """Síntese semanal de preços da ANP, direto da publicação oficial (US14).
+
+    O arquivo tem um cabeçalho institucional de tamanho variável antes da
+    tabela; a linha de títulos é localizada pela célula "DATA INICIAL".
+    O download fica em cache local e é refeito quando tem mais de
+    `validade_dias` dias — a ANP publica toda semana.
+    """
+
+    def __init__(self, cache: str = "dados/brutos/anp_semanal.xlsx", url: str = URL_ANP_SEMANAL,
+                 validade_dias: int = 7, atualizar: bool = True):
+        self.cache, self.url, self.validade_dias, self.atualizar = cache, url, validade_dias, atualizar
+
+    def _desatualizado(self) -> bool:
+        import os
+        import time
+        if not os.path.exists(self.cache):
+            return True
+        return (time.time() - os.path.getmtime(self.cache)) > self.validade_dias * 86400
+
+    def baixar(self) -> None:
+        import os
+
+        import requests
+
+        os.makedirs(os.path.dirname(self.cache) or ".", exist_ok=True)
+        r = requests.get(self.url, timeout=300)
+        r.raise_for_status()
+        with open(self.cache, "wb") as f:
+            f.write(r.content)
+
+    @staticmethod
+    def ler_planilha(caminho: str) -> pd.DataFrame:
+        bruto = pd.read_excel(caminho, header=None)
+        primeira = bruto.iloc[:, 0].astype(str).str.strip().str.upper()
+        linhas = primeira[primeira == "DATA INICIAL"].index
+        if len(linhas) == 0:
+            raise DadosInvalidos("planilha da ANP sem a linha de títulos 'DATA INICIAL'")
+        cab = linhas[0]
+        df = bruto.iloc[cab + 1:].copy()
+        df.columns = [str(c).strip() for c in bruto.iloc[cab]]
+        return df.dropna(how="all").reset_index(drop=True)
+
+    def load(self) -> pd.DataFrame:
+        if self.atualizar and self._desatualizado():
+            self.baixar()
+        return self.ler_planilha(self.cache)
+
+
 class MemorySource(DataSource):
     """Fonte em memória. Usada nos testes, e prova que a abstração funciona."""
 
