@@ -115,9 +115,15 @@ def test_toda_agencia_tem_regional_e_coordenada(execucao):
 
 
 def test_execucao_e_reprodutivel(tmp_path, monkeypatch):
-    """Mesma entrada e mesma semente: mesmo pacote, byte a byte."""
+    """Mesma entrada e mesma semente: mesmo pacote. O carimbo de geração é
+    removido antes de comparar, para o teste só quebrar por motivo certo
+    (revisão do PR #28)."""
+    def pacote_sem_carimbo(pasta):
+        with open(pasta / "dados" / "saida" / "dados_prototipo.json", encoding="utf-8") as f:
+            p = json.load(f)
+        p.pop("geradoEm", None)
+        return p
+
     _executar(tmp_path / "a", monkeypatch)
-    primeiro = open(tmp_path / "a" / "dados" / "saida" / "dados_prototipo.json", encoding="utf-8").read()
     _executar(tmp_path / "b", monkeypatch)
-    segundo = open(tmp_path / "b" / "dados" / "saida" / "dados_prototipo.json", encoding="utf-8").read()
-    assert primeiro == segundo
+    assert pacote_sem_carimbo(tmp_path / "a") == pacote_sem_carimbo(tmp_path / "b")

@@ -100,3 +100,15 @@ def test_relatorio_e_gravado_em_json_e_markdown(tmp_path):
     validate.gravar(resultados, str(tmp_path), date(2026, 11, 12))
     assert (tmp_path / "relatorio_qualidade.json").exists()
     assert "6 de 6 regras passaram" in (tmp_path / "relatorio_qualidade.md").read_text(encoding="utf-8")
+
+
+def test_regressao_so_acusa_regra_que_passava(tmp_path):
+    """Revisão do PR #28: falha conhecida não bloqueia; regra que regrediu, sim."""
+    import json
+
+    base = tmp_path / "base.json"
+    base.write_text(json.dumps({"regras_que_passam": ["Um registro por agência"]}), encoding="utf-8")
+    ok = validate.validar(_agencias(), _prep(["bairro"] * 10, 0), _precos(ultima="2021-05-01"), hoje=date(2026, 11, 12))
+    assert validate.regressoes(ok, str(base)) == []                       # preços antigos: falha conhecida
+    ruim = validate.validar(_agencias(cod_compe_ag=[1, 1, 3, 4]), _prep(["bairro"] * 10, 0), _precos(), hoje=date(2026, 11, 12))
+    assert validate.regressoes(ruim, str(base)) == ["Um registro por agência"]
