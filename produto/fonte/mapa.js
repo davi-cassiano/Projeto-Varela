@@ -320,7 +320,7 @@ function desenharMapa(rt) {
     if (Math.hypot(b.x - a.x, b.y - a.y) < 36 * k) return "";
     const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
     const ang = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
-    return `<path d="M-4 -3.4L4.6 0L-4 3.4Z" fill="${COR_MODAL[t.escolha.modal]}"
+    return `<path d="M-4 -3.4L4.6 0L-4 3.4Z" fill="${COR_MODAL[t.escolha.modal]}" data-seta="${t.indice}"
       transform="translate(${mx.toFixed(1)},${my.toFixed(1)}) rotate(${ang.toFixed(1)}) scale(${k.toFixed(2)})"
       pointer-events="none"/>`;
   }).join("");
@@ -514,6 +514,51 @@ function pintarMapa(rt) {
   if (!caixa) return;
   caixa.innerHTML = desenharMapa(rt);
   ligarMapa(rt);
+  if (estado.mapaAnimadoPara !== rt) {
+    estado.mapaAnimadoPara = rt;   /* uma vez por resultado; zoom e cliques não reanimam */
+    animarRota(rt);
+  }
+}
+
+/* ---------- a rota se desenha ----------
+   Único movimento não disparado pelo usuário em todo o produto: quando o
+   resultado abre, a rota aparece trecho a trecho, na ordem das visitas,
+   e cada parada surge quando o trecho chega nela. Mostra a informação
+   central (a sequência) em vez de decorar. Respeita prefers-reduced-motion. */
+function animarRota(rt) {
+  const svg = $("#mapa-svg");
+  if (!svg || !svg.animate) return;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const porTrecho = 420, atraso = 90;
+  const trechos = rt.trechos.map((t) => svg.querySelector(`g[data-segmento="${t.indice}"]:not([role])`)).filter(Boolean);
+  const paradas = [...svg.querySelectorAll('g[data-segmento][role="button"]')];
+  const setaDe = (t) => svg.querySelector(`path[data-seta="${t.indice}"]`);
+
+  paradas.forEach((g) => { g.style.opacity = "0"; });
+  rt.trechos.forEach((t) => { const p = setaDe(t); if (p) p.style.opacity = "0"; });
+
+  trechos.forEach((g, i) => {
+    const inicio = i * (porTrecho + atraso);
+    const caminhos = [...g.querySelectorAll("path")].slice(0, 2);
+    caminhos.forEach((path) => {
+      const L = path.getTotalLength();
+      path.style.strokeDasharray = `${L} ${L}`;
+      path.style.strokeDashoffset = `${L}`;
+      path.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }],
+        { duration: porTrecho, delay: inicio, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" })
+        .onfinish = () => { path.style.strokeDasharray = path.getAttribute("stroke-dasharray") || ""; path.style.strokeDashoffset = ""; };
+    });
+    const parada = paradas[i];
+    if (parada) {
+      parada.animate([{ opacity: 0, transform: "scale(.6)" }, { opacity: 1, transform: "scale(1)" }],
+        { duration: 260, delay: inicio + porTrecho - 60, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" });
+      parada.style.transformBox = "fill-box";
+      parada.style.transformOrigin = "center";
+    }
+    const seta = setaDe(rt.trechos[i]);
+    if (seta) seta.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: inicio + porTrecho, fill: "forwards" });
+  });
 }
 
 /* =====================================================================

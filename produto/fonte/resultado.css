@@ -35,7 +35,7 @@
 
 /* mapa */
 .mapa-caixa{background:var(--papel);border:1px solid var(--linha-forte);border-top:2px solid var(--tinta);border-radius:var(--raio);overflow:hidden;position:sticky;top:80px}
-.mapa{position:relative;background:#DCE6EE}
+.mapa{position:relative;background:#E3E7DE}
 .mapa svg{display:block;width:100%;height:auto;touch-action:none;cursor:grab}
 .mapa svg.arrastando{cursor:grabbing}
 .mapa .etiqueta{
