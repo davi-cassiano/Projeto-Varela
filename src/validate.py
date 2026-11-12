@@ -231,6 +231,8 @@ def main() -> None:
     p.add_argument("--sem-download", action="store_true", help="não baixar bases auxiliares")
     p.add_argument("--amostra", action="store_true",
                    help="validar o recorte versionado em dados/colab/ (sem as bases brutas)")
+    p.add_argument("--atualizar-precos", action="store_true",
+                   help="US14: validar a série atual da ANP em vez do arquivo 2004-2021")
     args = p.parse_args()
 
     dados, brutos = "dados", os.path.join("dados", "brutos")
@@ -240,6 +242,8 @@ def main() -> None:
         if not args.sem_download:
             ingest.baixar_bases_auxiliares(dados)
         agencias, enriquecidas, precos = _carregar_bases(dados, brutos)
+        if args.atualizar_precos:
+            precos = ingest.carregar_precos(ingest.AnpSource(atualizar=not args.sem_download))
 
     resultados = validar(agencias, enriquecidas, precos)
     hoje = date.today()

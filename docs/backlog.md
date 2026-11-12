@@ -349,3 +349,20 @@ Etiquetas: `onda-1`, `onda-2`, `E1-montagem`, `E2-recomendacao`, `E3-avaliacao`,
 
 Colunas do quadro (GitHub Projects): **Backlog · Onda 1 (MVP) · Onda 2 ·
 Concluído**, como pede a Aula 4.
+
+## 7. Situação das stories em 12/11/2026
+
+| Story | Entregue em | Onde o critério de aceite é verificado |
+| --- | --- | --- |
+| US01, US02, US03, US04, US06, US07, US08 | Protótipo (checkpoint 1); regionais e modais no PR #15 | `tests/test_train.py`, `tests/test_serve.py`, protótipo navegável |
+| US05 | Sprint 1 (PR #15) | `tests/test_serve.py` |
+| US09 | Sprint final (12/11) | Exportação em A4 no protótipo |
+| US10 | Sprint 1 (PR #15) | `tests/test_ingest.py`, `tests/test_features.py`, regra 5 de qualidade |
+| US11 | Sprint 1 (PR #15) | `tests/test_train.py::test_criterio_de_aceite_us11` |
+| US12 | Sprint final (12/11) | `tests/test_sequencia.py::test_criterio_de_aceite_us12` |
+| US13 | Sprint final (12/11) | Painel do protótipo |
+| US14 | Sprint final (12/11) | `tests/test_monitor.py`, `src/monitor.py`, workflow `atualizar-precos.yml` |
+
+14 de 14 stories entregues. A validação das stories de interface com um gerente
+real, prevista para depois do MVP, depende de acesso ao banco e fica como próximo
+passo fora do curso.

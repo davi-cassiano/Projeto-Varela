@@ -275,8 +275,31 @@ das Aulas 8 e 9 e levar para a Aula 10 um plano replanejado:
 | --- | --- | --- |
 | Sprint 1 | US05, US10, US11, testes e PR | Entregue em 15/10 |
 | Ciclo de qualidade (12/11) | Validação de dados, suíte de testes, CI, autoavaliação, revisão de riscos | Entregue |
-| Próxima sprint | Issue #16, validação das stories de interface com um gerente (US01–US04, US07, US08) | Planejada |
-| Depois | US06, US09, US12, US13, US14 | Backlog |
+| Sprint final (12/11) | US09 exportação, US12 sequência otimizada, US13 painel, US14 preços automáticos; revisão por colega | Entregue |
+| Depois do curso | Issue #16; validação das stories de interface com um gerente real | Backlog |
+
+### Sprint final — 12/11/2026
+
+**Meta:** entregar as stories que faltavam para o produto completo da Onda 1 e da
+Onda 2, com critério de aceite verificado por teste.
+
+| Item | Pontos | Critério verificado | Dono |
+| --- | --- | --- | --- |
+| US12 · Sequência otimizada | 8 | 20 seleções reais: nunca pior que a varredura, **12,2% menor na média** (`tests/test_sequencia.py`); 40 agências em ~1,4 ms no navegador | Victor |
+| US14 · Preços atualizados automaticamente | 5 | `AnpSource` lê a publicação oficial; série até 07/11/2026; monitor com alerta acima de R$ 0,25/L (MAE recente **R$ 0,105/L**); workflow semanal (`tests/test_monitor.py`) | Luca |
+| US09 · Salvar e exportar | 5 | Exportação em A4 com parâmetros, itinerário, totais e comparação (impressão do navegador) | Gabriel |
+| US13 · Painel consolidado | 3 | % de agências dentro da periodicidade contra a meta de 90% e custo acumulado dos planejamentos salvos | Gabriel |
+| Revisão por colega e merge | 3 | Três comentários por PR, bloqueia/sugestão, respondidos antes do merge | Davi |
+| **Total** | **24** | | |
+
+24 pontos num ciclo de um dia: acima da velocidade de 20 por duas semanas, e só
+foi possível porque US09 e US13 eram ajustes sobre telas que já existiam e a US14
+encontrou na ANP um arquivo com as mesmas colunas da série antiga. Não é uma
+velocidade para planejar por cima.
+
+**Resultado:** 14 de 14 stories entregues. Fica em aberto a Issue #16 (limite de
+desvio por município), que não é story do Canvas, e a validação com um gerente
+real, que depende de acesso ao banco.
 
 ---
 
@@ -289,6 +312,7 @@ acompanhadas e não medidas uma vez só.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Sprint 1 | 15/10/2026 | 20 / 19 | 23 | não medida | 0,095 | não havia | não |
 | Ciclo de qualidade | 12/11/2026 | — | 79 | 88% | 0,095 (sem nova série) | 4 de 6 passam | sim |
+| Sprint final | 12/11/2026 | 24 / 24 | 98 | 88% | 0,116 (série da ANP até 11/2026; teste 2020–2026) · 0,105 nas últimas 4 semanas | 5 de 6 passam com a série atual | sim |
 
 Como medir: `pytest --cov=src` para testes e cobertura; `python -m src.pipeline`
 imprime o MAE; `python -m src.validate` gera o relatório de qualidade.

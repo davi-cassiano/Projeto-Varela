@@ -158,3 +158,22 @@
   .resultado-colunas{grid-template-columns:1fr}
   .mapa-caixa{position:static}
 }
+
+/* ---------- US09: impressão / exportação em A4 ---------- */
+.so-impressao{display:none}
+@media print{
+  @page{size:A4;margin:14mm 12mm}
+  html,body{background:#fff !important}
+  .lateral,.topo,.pagina-acoes,.acoes-finais,.btn,.mapa-caixa,.aviso,.toast{display:none !important}
+  .app{display:block}
+  .conteudo{padding:0 !important;max-width:none !important;overflow:visible !important}
+  .so-impressao{display:block}
+  .cabecalho-impressao{margin-bottom:14px;border-bottom:2px solid #12263a;padding-bottom:10px}
+  .ci-titulo{display:flex;justify-content:space-between;font-size:11px;color:#5a7185;margin-bottom:8px}
+  .ci-parametros{width:100%;border-collapse:collapse;font-size:11px}
+  .ci-parametros th{text-align:left;color:#5a7185;font-weight:600;padding:3px 8px 3px 0;width:14%}
+  .ci-parametros td{padding:3px 12px 3px 0;width:36%}
+  .painel,.ind,section{break-inside:avoid;box-shadow:none !important}
+  .dia{break-inside:avoid}
+  a[href]:after{content:""}
+}

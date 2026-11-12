@@ -9,7 +9,8 @@ Uso, a partir da raiz do repositório:
 
     python -m src.pipeline                 # pipeline completo
     python -m src.pipeline --sem-download  # não tenta baixar bases auxiliares
-    python -m src.pipeline --preco-gasolina 6.45  # preço nacional da semana
+    python -m src.pipeline --preco-gasolina 6.45  # preço nacional informado à mão
+    python -m src.pipeline --atualizar-precos     # US14: série e preço atuais, direto da ANP
 """
 
 from __future__ import annotations
@@ -88,27 +89,42 @@ def main() -> None:
     p = argparse.ArgumentParser(description="Pipeline de roteirização de visitas")
     p.add_argument("--sem-download", action="store_true", help="não baixar bases auxiliares")
     p.add_argument("--sem-html", action="store_true", help="não montar o HTML do produto")
-    p.add_argument("--preco-gasolina", type=float, default=serve.PRECO_GASOLINA_NACIONAL,
-                   help="preço nacional atual da gasolina em R$/L (síntese semanal da ANP)")
+    p.add_argument("--preco-gasolina", type=float, default=None,
+                   help="preço nacional atual da gasolina em R$/L; sem informar, usa a última semana da ANP "
+                        "quando --atualizar-precos está ligado, senão R$ 6,70")
+    p.add_argument("--atualizar-precos", action="store_true",
+                   help="US14: baixar a síntese semanal da ANP em vez de usar o arquivo 2004-2021")
     args = p.parse_args()
 
     if not args.sem_download:
         ingest.baixar_bases_auxiliares(DADOS)
 
     consolidada = os.path.join(BRUTOS, "base_consolidada_roteirizacao.xlsx")
+    if args.atualizar_precos:
+        fonte_precos = ingest.AnpSource(atualizar=not args.sem_download)
+        preco_nacional = args.preco_gasolina
+        if preco_nacional is None:
+            from .monitor import preco_nacional_atual
+            preco_nacional = preco_nacional_atual(ingest.carregar_precos(fonte_precos))
+    else:
+        fonte_precos = ingest.TsvSource(os.path.join(BRUTOS, "2004-2021.tsv"))
+        preco_nacional = args.preco_gasolina
+        if preco_nacional is None:
+            preco_nacional = serve.PRECO_GASOLINA_NACIONAL
     rel = executar(
         fonte_agencias=ingest.ExcelSource(consolidada, "Agencias_Geocodificadas"),
-        fonte_precos=ingest.TsvSource(os.path.join(BRUTOS, "2004-2021.tsv")),
+        fonte_precos=fonte_precos,
         fonte_municipios=ingest.CsvSource(os.path.join(DADOS, "municipios.csv")),
         fonte_bairros=ingest.CsvSource(os.path.join(DADOS, "bairros.csv"), sep=";", quotechar='"'),
         fonte_aeroportos=ingest.ExcelSource(consolidada, "Aeroportos"),
         geojson_estados=ingest.carregar_geojson(os.path.join(DADOS, "uf.geojson")),
         montar_html=not args.sem_html,
-        preco_nacional=args.preco_gasolina,
+        preco_nacional=preco_nacional,
     )
 
     print(f"Agências: {rel['agencias']}  |  regionais: {rel['regionais']}")
     print(f"Precisão: {rel['precisao']}  |  descartadas por desvio: {rel['descartadas_por_desvio']}")
+    print(f"Preço nacional usado: R$ {rel['preco_nacional']:.3f}/L")
     print(f"Modelo de preço escolhido: {rel['modelo_escolhido']}")
     for a in rel["modelo_preco"]:
         print(f"   {a['nome']:45s} MAE R$ {a['mae']:.3f}/L   RMSE R$ {a['rmse']:.3f}/L")

@@ -14,13 +14,15 @@ Dependency Inversion: o custo do carro depende de um `EstimadorPreco`
 (abstração do train.py), não de um número fixo nem de um modelo
 específico.
 
-Stories atendidas: US03, US05, US06, US07 (cálculo por trecho) e US11
-(preço de combustível por estado aplicado ao custo).
+Stories atendidas: US03, US05, US06, US07 (cálculo por trecho), US11
+(preço de combustível por estado aplicado ao custo) e US12 (sequência
+otimizada de visitas).
 """
 
 from __future__ import annotations
 
 import json
+import math
 import re
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
@@ -130,6 +132,65 @@ def comparar_modais(origem: tuple[float, float], destino: tuple[float, float],
         "recomendado": min(validas, key=nota).modal,
         "peso_custo": peso_custo,
     }
+
+
+# ---------------------------------------------------------------------
+# Sequência de visitas (US12) — espelho de produto/fonte/roteiro.js
+# ---------------------------------------------------------------------
+
+Ponto = tuple[float, float]
+
+
+def distancia_circuito(origem: Ponto, ordem: list[Ponto]) -> float:
+    """Origem → visitas na ordem dada → origem, em km de linha reta."""
+    total, anterior = 0.0, origem
+    for p in ordem:
+        total += distancia_km(*anterior, *p)
+        anterior = p
+    return total + (distancia_km(*anterior, *origem) if ordem else 0.0)
+
+
+def varredura_angular(origem: Ponto, pontos: list[Ponto]) -> list[Ponto]:
+    """Regra provisória da versão anterior: ordena pelo ângulo em torno da origem."""
+    def angulo(p):
+        return math.atan2(p[0] - origem[0], (p[1] - origem[1]) * math.cos(math.radians(origem[0])))
+    return sorted(pontos, key=angulo)
+
+
+def vizinho_mais_proximo(origem: Ponto, pontos: list[Ponto]) -> list[Ponto]:
+    restantes, ordem, atual = list(pontos), [], origem
+    while restantes:
+        atual = min(restantes, key=lambda p: distancia_km(*atual, *p))
+        restantes.remove(atual)
+        ordem.append(atual)
+    return ordem
+
+
+def dois_opt(origem: Ponto, ordem: list[Ponto]) -> list[Ponto]:
+    """Inverte trechos enquanto isso encurtar o circuito (desfaz cruzamentos)."""
+    rota = [origem, *ordem, origem]
+    melhorou = True
+    while melhorou:
+        melhorou = False
+        for i in range(1, len(rota) - 2):
+            for j in range(i + 1, len(rota) - 1):
+                antes = distancia_km(*rota[i - 1], *rota[i]) + distancia_km(*rota[j], *rota[j + 1])
+                depois = distancia_km(*rota[i - 1], *rota[j]) + distancia_km(*rota[i], *rota[j + 1])
+                if depois < antes - 1e-9:
+                    rota[i:j + 1] = reversed(rota[i:j + 1])
+                    melhorou = True
+    return rota[1:-1]
+
+
+def sequenciar_visitas(origem: Ponto, pontos: list[Ponto]) -> list[Ponto]:
+    """US12: 2-opt aplicado a dois pontos de partida — vizinho mais próximo e
+    a própria varredura angular — fica com o menor circuito. Como o 2-opt só
+    aceita melhorias, o resultado nunca é pior que a varredura."""
+    if len(pontos) < 2:
+        return list(pontos)
+    candidatos = [dois_opt(origem, vizinho_mais_proximo(origem, pontos)),
+                  dois_opt(origem, varredura_angular(origem, pontos))]
+    return min(candidatos, key=lambda ordem: distancia_circuito(origem, ordem))
 
 
 # ---------------------------------------------------------------------
