@@ -588,7 +588,51 @@ input[type="range"]:focus-visible{outline:2px solid var(--tinta-3);outline-offse
 }
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ---------- entrada (identificação, sem senha) ---------- */
+.entrada{
+  position:fixed;inset:0;z-index:100;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(380px,.85fr);
+  background:var(--tela);
+}
+.entrada[hidden]{display:none}
+.entrada-mapa{
+  position:relative;overflow:hidden;background:var(--tinta);color:#E6ECE6;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.08' stroke-width='1'%3E%3Cpath d='M-20 60c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 100c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 140c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 180c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 220c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 20c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3C/g%3E%3C/svg%3E");
+  display:flex;flex-direction:column;justify-content:space-between;padding:48px 56px;
+}
+.entrada-mapa svg.brasil{position:absolute;right:-6%;top:50%;transform:translateY(-50%);width:62%;height:auto;opacity:.95;pointer-events:none}
+.entrada-marca{font-family:var(--serif);font-size:20px;color:#fff;font-weight:600;line-height:1.15}
+.entrada-marca small{display:block;font-family:var(--sans);font-size:12px;color:#9DB3AD;font-weight:400;margin-top:4px}
+.entrada-titulo{position:relative;max-width:520px}
+.entrada-titulo h1{font-family:var(--serif);font-size:54px;line-height:1.02;color:#fff;font-weight:500;letter-spacing:-.02em;font-variation-settings:'opsz' 144}
+.entrada-titulo h1 em{font-style:italic;color:var(--placa)}
+.entrada-titulo p{margin:18px 0 0;font-size:15px;line-height:1.55;color:#C5D2CC;max-width:44ch}
+.entrada-numeros{position:relative;display:flex;gap:34px;font-variant-numeric:tabular-nums}
+.entrada-numeros b{display:block;font-family:var(--serif);font-size:30px;font-weight:500;color:#fff;line-height:1}
+.entrada-numeros span{font-size:12px;color:#9DB3AD}
+.entrada-form{display:flex;align-items:center;justify-content:center;padding:40px 48px}
+.entrada-cartao{width:100%;max-width:400px}
+.entrada-cartao h2{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-.015em;line-height:1.1}
+.entrada-cartao .sub{color:var(--texto-fraco);font-size:13.5px;margin:8px 0 28px;line-height:1.5}
+.campo{display:block;margin-bottom:16px}
+.campo span{display:block;font-size:12.5px;font-weight:600;color:var(--texto);margin-bottom:6px}
+.campo input,.campo select{
+  width:100%;padding:11px 12px;border:1px solid var(--linha-forte);border-radius:var(--raio);
+  background:var(--papel);font-size:14px;outline:0;
+}
+.campo input:focus,.campo select:focus{border-color:var(--tinta);box-shadow:0 0 0 3px rgba(22,48,58,.12)}
+.campo .ajuda{display:block;font-size:12px;color:var(--texto-tenue);margin-top:5px;font-weight:400}
+.lembrar{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--texto-fraco);margin:4px 0 22px}
+.lembrar input{width:16px;height:16px;accent-color:var(--tinta)}
+.entrada-cartao .btn-principal{width:100%;padding:12px;font-size:15px}
+.entrada-rodape{margin-top:22px;font-size:12px;color:var(--texto-tenue);line-height:1.5}
+.entrada-rodape b{color:var(--texto-fraco);font-weight:600}
+.menu .sair{margin-top:auto}
 @media (max-width:1080px){
+  .entrada{grid-template-columns:1fr;overflow:auto}
+  .entrada-mapa{padding:28px 24px;min-height:300px}
+  .entrada-mapa svg.brasil{display:none}
+  .entrada-titulo h1{font-size:36px}
+  .entrada-form{padding:28px 20px}
   .app{grid-template-columns:1fr}
   .lateral{position:static;height:auto;flex-direction:row;align-items:center}
   .menu{flex-direction:row;flex-wrap:wrap;padding:10px}
@@ -601,6 +645,36 @@ input[type="range"]:focus-visible{outline:2px solid var(--tinta-3);outline-offse
 </style>
 </head>
 <body>
+
+<div class="entrada" id="entrada" hidden>
+  <section class="entrada-mapa">
+    <div class="entrada-marca">Roteirização de Visitas<small>Planejamento de rede · Itaú Unibanco</small></div>
+    <svg class="brasil" viewBox="0 0 680 500" aria-hidden="true" id="entrada-brasil"></svg>
+    <div class="entrada-titulo">
+      <h1>O roteiro certo para a sua regional.</h1>
+      <p>Escolha as agências, informe o período e o objetivo. O sistema devolve a sequência de visitas, o transporte de cada trecho e quanto você economiza em relação a fazer tudo de carro.</p>
+    </div>
+    <div class="entrada-numeros">
+      <div><b id="entrada-n-ag">—</b><span>agências na rede</span></div>
+      <div><b id="entrada-n-reg">—</b><span>regionais</span></div>
+      <div><b>3</b><span>modais comparados</span></div>
+    </div>
+  </section>
+  <section class="entrada-form">
+    <form class="entrada-cartao" id="form-entrada" autocomplete="off">
+      <h2>Entrar</h2>
+      <p class="sub">Identifique-se para abrir o painel da sua regional. Sem senha neste protótipo: em produção a entrada é pelo login corporativo do banco.</p>
+      <label class="campo"><span>Seu nome</span>
+        <input id="entrada-nome" value="Rafael Menezes" required maxlength="60"></label>
+      <label class="campo"><span>Regional</span>
+        <select id="entrada-regional"></select>
+        <small class="ajuda">A regional define quais agências você vê e planeja.</small></label>
+      <label class="lembrar"><input type="checkbox" id="entrada-lembrar" checked> Lembrar neste navegador</label>
+      <button class="btn btn-principal" type="submit">Abrir o painel</button>
+      <p class="entrada-rodape"><b>Dados públicos.</b> Agências do cadastro do Banco Central; preços de combustível da ANP. Nenhum dado pessoal é guardado além do nome que você digitar, neste navegador.</p>
+    </form>
+  </section>
+</div>
 
 <div class="app">
   <aside class="lateral">
@@ -909,11 +983,17 @@ function pintarMenu() {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
            stroke-linecap="round" stroke-linejoin="round"><path d="${i.d}"/></svg>
       ${i.rot}
-    </button>`).join("");
+    </button>`).join("") + `
+    <button class="sair" data-sair>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Sair
+    </button>`;
 
-  $("#menu").querySelectorAll("button").forEach((b) => {
+  $("#menu").querySelectorAll("button[data-tela]").forEach((b) => {
     b.onclick = () => irPara(b.dataset.tela);
   });
+  $("#menu").querySelector("[data-sair]").onclick = sair;
 }
 
 /* ---------- seletor de regional ---------- */
@@ -3377,13 +3457,89 @@ function pintarAgencias() {
 }
 
 
-/* ---------- início ---------- */
-estado.regional = DADOS.regionais.find((r) => r.nome.startsWith("Goiânia")) || DADOS.regionais[0];
-$("#btn-novo").onclick = () => { estado.plano = novoPlano(); irPara("novo"); };
-estado.salvos = carregarSalvos();
-pintarMenu();
-pintarRegional();
-pintarTela();
+/* ---------- entrada: identificação, sem senha ----------
+   Guarda só nome e regional neste navegador (RNF08: nenhum dado pessoal
+   além disso). Autenticação de verdade fica para o login corporativo. */
+const CHAVE_ENTRADA = "roteirizacao.entrada.v1";
+
+function lerEntrada() {
+  try { return JSON.parse(window.localStorage.getItem(CHAVE_ENTRADA) || "null"); } catch (e) { return null; }
+}
+
+function aplicarEntrada(nome, regionalId) {
+  estado.usuario = nome;
+  estado.regional = DADOS.regionais.find((r) => r.id === regionalId) || DADOS.regionais[0];
+  const iniciais = nome.trim().split(/\s+/).map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "RM";
+  $(".avatar").textContent = iniciais;
+  $(".usuario-nome").textContent = nome;
+}
+
+function desenharBrasilEntrada() {
+  const svg = $("#entrada-brasil");
+  if (!svg || !DADOS.estados) return;
+  const pts = DADOS.estados.flatMap((e) => e.aneis.flat());
+  const lons = pts.map((p) => p[0]), lats = pts.map((p) => p[1]);
+  const x0 = Math.min(...lons), x1 = Math.max(...lons), y0 = Math.min(...lats), y1 = Math.max(...lats);
+  const esc = Math.min(640 / (x1 - x0), 470 / (y1 - y0));
+  const P = ([lon, lat]) => `${((lon - x0) * esc + 20).toFixed(1)} ${((y1 - lat) * esc + 15).toFixed(1)}`;
+  const regionalAtual = () => +$("#entrada-regional").value;
+  const pintar = () => {
+    const sel = DADOS.regionais.find((r) => r.id === regionalAtual());
+    const ufs = new Set(sel ? sel.ufs : []);
+    svg.innerHTML = DADOS.estados.map((e) => `<path d="${e.aneis.map((a) => "M" + a.map(P).join("L") + "Z").join("")}"
+        fill="${ufs.has(e.uf) ? "#C9871F" : "rgba(255,255,255,.06)"}" fill-opacity="${ufs.has(e.uf) ? ".85" : "1"}"
+        stroke="rgba(255,255,255,.35)" stroke-width=".8"/>`).join("") +
+      (sel ? `<circle cx="${P([sel.sede.lon, sel.sede.lat]).split(" ")[0]}" cy="${P([sel.sede.lon, sel.sede.lat]).split(" ")[1]}" r="6" fill="#fff" stroke="#C9871F" stroke-width="3"/>` : "");
+  };
+  $("#entrada-regional").addEventListener("change", pintar);
+  pintar();
+}
+
+function mostrarEntrada() {
+  const sel = $("#entrada-regional");
+  sel.innerHTML = [...DADOS.regionais].sort((a, b) => a.nome.localeCompare(b.nome))
+    .map((r) => `<option value="${r.id}">${esc(r.nome)} · ${r.agencias} agências (${r.ufs.join(", ")})</option>`).join("");
+  const padrao = DADOS.regionais.find((r) => r.nome.startsWith("Goiânia")) || DADOS.regionais[0];
+  sel.value = padrao.id;
+  $("#entrada-n-ag").textContent = DADOS.agencias.length.toLocaleString("pt-BR");
+  $("#entrada-n-reg").textContent = DADOS.regionais.length;
+  desenharBrasilEntrada();
+  $("#entrada").hidden = false;
+  $("#entrada-nome").focus();
+  $("#form-entrada").onsubmit = (ev) => {
+    ev.preventDefault();
+    const nome = $("#entrada-nome").value.trim() || "Gerente regional";
+    const regionalId = +sel.value;
+    if ($("#entrada-lembrar").checked) {
+      try { window.localStorage.setItem(CHAVE_ENTRADA, JSON.stringify({ nome, regionalId })); } catch (e) { /* sem armazém */ }
+    }
+    $("#entrada").hidden = true;
+    iniciarApp(nome, regionalId);
+  };
+}
+
+function sair() {
+  try { window.localStorage.removeItem(CHAVE_ENTRADA); } catch (e) { /* sem armazém */ }
+  estado.plano = null;
+  mostrarEntrada();
+}
+
+function iniciarApp(nome, regionalId) {
+  aplicarEntrada(nome, regionalId);
+  $("#btn-novo").onclick = () => { estado.plano = novoPlano(); irPara("novo"); };
+  estado.salvos = carregarSalvos();
+  pintarMenu();
+  pintarRegional();
+  irPara("painel");
+}
+
+const lembrado = lerEntrada();
+if (lembrado && DADOS.regionais.some((r) => r.id === lembrado.regionalId)) {
+  iniciarApp(lembrado.nome, lembrado.regionalId);
+} else {
+  estado.regional = DADOS.regionais[0];
+  mostrarEntrada();
+}
 </script>
 </body>
 </html>
