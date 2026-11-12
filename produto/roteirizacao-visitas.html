@@ -140,6 +140,8 @@ button{cursor:pointer}
 
 /* ---------- indicadores ---------- */
 .indicadores{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.indicadores-us13{grid-template-columns:repeat(2,1fr);margin-bottom:14px}
+.indicadores-us13 .ind-val{font-size:30px}
 .ind{background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);padding:16px 17px;box-shadow:var(--sombra)}
 .ind-rot{font-size:12.5px;color:var(--texto-fraco);line-height:1.35;min-height:2.7em}
 .ind-val{font-family:'IBM Plex Serif',serif;font-size:30px;font-weight:600;line-height:1.1;margin-top:8px;font-variant-numeric:tabular-nums}
@@ -551,6 +553,25 @@ input[type="range"]:focus-visible{outline:2px solid var(--tinta-3);outline-offse
   .resumo-topo{grid-template-columns:repeat(2,1fr)}
   .resultado-colunas{grid-template-columns:1fr}
   .mapa-caixa{position:static}
+}
+
+/* ---------- US09: impressão / exportação em A4 ---------- */
+.so-impressao{display:none}
+@media print{
+  @page{size:A4;margin:14mm 12mm}
+  html,body{background:#fff !important}
+  .lateral,.topo,.pagina-acoes,.acoes-finais,.btn,.mapa-caixa,.aviso,.toast{display:none !important}
+  .app{display:block}
+  .conteudo{padding:0 !important;max-width:none !important;overflow:visible !important}
+  .so-impressao{display:block}
+  .cabecalho-impressao{margin-bottom:14px;border-bottom:2px solid #12263a;padding-bottom:10px}
+  .ci-titulo{display:flex;justify-content:space-between;font-size:11px;color:#5a7185;margin-bottom:8px}
+  .ci-parametros{width:100%;border-collapse:collapse;font-size:11px}
+  .ci-parametros th{text-align:left;color:#5a7185;font-weight:600;padding:3px 8px 3px 0;width:14%}
+  .ci-parametros td{padding:3px 12px 3px 0;width:36%}
+  .painel,.ind,section{break-inside:avoid;box-shadow:none !important}
+  .dia{break-inside:avoid}
+  a[href]:after{content:""}
 }
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -1631,6 +1652,13 @@ function pintarPainel() {
 
   const planos = planejamentosDe(r);
 
+  /* US13: indicadores consolidados da regional */
+  const META_PRAZO = 90;
+  const noPrazo = ags.filter((a) => dias(a.dataLimite) >= 0).length;
+  const pctPrazo = ags.length ? Math.round((noPrazo / ags.length) * 100) : 0;
+  const salvosDaRegional = estado.salvos.filter((s) => s.regional === r.id);
+  const custoAcumulado = salvosDaRegional.reduce((soma, s) => soma + (s.roteiro ? s.roteiro.totais.custo : 0), 0);
+
   const prazoClasse = (d) => (d < 0 ? "urgente" : d <= 30 ? "proximo" : "");
   const prazoTexto = (d) =>
     d < 0 ? `${Math.abs(d)} d em atraso` : d === 0 ? "vence hoje" : `em ${d} d`;
@@ -1645,6 +1673,19 @@ function pintarPainel() {
       </div>
       <div class="pagina-acoes">
         <button class="btn" data-acao="ver-agencias">Ver agências</button>
+      </div>
+    </div>
+
+    <div class="indicadores indicadores-us13">
+      <div class="ind ${pctPrazo >= META_PRAZO ? "" : "critico"}">
+        <div class="ind-rot">Agências dentro da periodicidade</div>
+        <div class="ind-val num">${pctPrazo}%</div>
+        <div class="ind-nota">meta de ${META_PRAZO}% · ${noPrazo} de ${ags.length} no prazo${pctPrazo >= META_PRAZO ? ", meta atingida" : `, faltam ${Math.ceil((META_PRAZO / 100) * ags.length) - noPrazo}`}</div>
+      </div>
+      <div class="ind">
+        <div class="ind-rot">Custo acumulado dos planejamentos salvos</div>
+        <div class="ind-val num">${dinheiro(custoAcumulado)}</div>
+        <div class="ind-nota">${salvosDaRegional.length ? plural(salvosDaRegional.length, "planejamento salvo", "planejamentos salvos") + " neste navegador" : "nenhum planejamento salvo ainda"}</div>
       </div>
     </div>
 
@@ -1726,29 +1767,90 @@ function pintarPainel() {
 /* =====================================================================
    MONTAGEM DO ROTEIRO
 
-   ATENÇÃO AO ESCOPO: aqui NÃO há algoritmo de roteirização. A sequência
-   de visitas vem de uma regra provisória (varredura angular em torno da
-   origem, com prazos vencidos puxados para a frente). É o ponto exato
-   onde o otimizador (TSP/VRP) entra numa próxima fase — trocar a função
-   sequenciar() é suficiente, o resto da tela não muda.
+   A sequência de visitas é otimizada (US12): vizinho mais próximo a partir
+   da origem, refinado por 2-opt (desfaz pares de trechos que se cruzam).
+   A varredura angular da versão anterior fica como referência de
+   comparação. O resto da tela não conhece o algoritmo: trocar
+   sequenciar() continua bastando.
 
-   O que É calculado de verdade: custo, tempo, distância e escolha de
-   modal por trecho, pelo modelo calibrado em decisao_transporte.py.
+   Custo, tempo, distância e escolha de modal por trecho vêm do modelo
+   calibrado (serve.py / motor.js).
    ===================================================================== */
 
-/* Varredura angular: ordena os pontos pelo ângulo em torno da origem,
-   o que produz um circuito sem cruzamentos grosseiros no mapa. */
-function sequenciar(origem, agencias, priorizarAtrasadas) {
+/* Varredura angular (versão anterior, mantida para comparação): ordena os
+   pontos pelo ângulo em torno da origem. */
+function varreduraAngular(origem, agencias) {
   const angulo = (a) =>
     Math.atan2(a.lat - origem.lat, (a.lon - origem.lon) * Math.cos((origem.lat * Math.PI) / 180));
+  return [...agencias].sort((a, b) => angulo(a) - angulo(b));
+}
 
-  const varrer = (lista) => [...lista].sort((a, b) => angulo(a) - angulo(b));
+function distanciaCircuito(origem, ordem) {
+  let total = 0;
+  let anterior = origem;
+  for (const a of ordem) { total += distanciaKm(anterior, a); anterior = a; }
+  return total + (ordem.length ? distanciaKm(anterior, origem) : 0);
+}
 
-  if (!priorizarAtrasadas) return varrer(agencias);
+/* Vizinho mais próximo: a partir da origem, sempre vai à agência ainda não
+   visitada mais perto. Rápido e razoável; deixa alguns cruzamentos. */
+function vizinhoMaisProximo(origem, agencias) {
+  const restantes = [...agencias];
+  const ordem = [];
+  let atual = origem;
+  while (restantes.length) {
+    let melhor = 0;
+    for (let i = 1; i < restantes.length; i++) {
+      if (distanciaKm(atual, restantes[i]) < distanciaKm(atual, restantes[melhor])) melhor = i;
+    }
+    atual = restantes.splice(melhor, 1)[0];
+    ordem.push(atual);
+  }
+  return ordem;
+}
 
+/* 2-opt: enquanto inverter um trecho da rota encurtar o circuito, inverte.
+   Remove os cruzamentos que o vizinho mais próximo deixa. */
+function doisOpt(origem, ordem) {
+  const rota = [origem, ...ordem, origem];
+  let melhorou = true;
+  while (melhorou) {
+    melhorou = false;
+    for (let i = 1; i < rota.length - 2; i++) {
+      for (let j = i + 1; j < rota.length - 1; j++) {
+        const antes = distanciaKm(rota[i - 1], rota[i]) + distanciaKm(rota[j], rota[j + 1]);
+        const depois = distanciaKm(rota[i - 1], rota[j]) + distanciaKm(rota[i], rota[j + 1]);
+        if (depois < antes - 1e-9) {
+          const trecho = rota.slice(i, j + 1).reverse();
+          rota.splice(i, trecho.length, ...trecho);
+          melhorou = true;
+        }
+      }
+    }
+  }
+  return rota.slice(1, -1);
+}
+
+/* 2-opt a partir de dois pontos de partida (vizinho mais próximo e varredura
+   angular); fica com o menor circuito. Nunca pior que a varredura. */
+function otimizar(origem, agencias) {
+  if (agencias.length < 2) return [...agencias];
+  const candidatos = [
+    doisOpt(origem, vizinhoMaisProximo(origem, agencias)),
+    doisOpt(origem, varreduraAngular(origem, agencias)),
+  ];
+  return candidatos.sort((a, b) => distanciaCircuito(origem, a) - distanciaCircuito(origem, b))[0];
+}
+
+/* Sequência final. Com "priorizar atrasadas", as agências com prazo vencido
+   formam o primeiro bloco e cada bloco é otimizado separadamente. */
+function sequenciar(origem, agencias, priorizarAtrasadas) {
+  if (!priorizarAtrasadas) return otimizar(origem, agencias);
   const atrasadas = agencias.filter((a) => dias(a.dataLimite) < 0);
   const demais = agencias.filter((a) => dias(a.dataLimite) >= 0);
-  return [...varrer(atrasadas), ...varrer(demais)];
+  const primeiro = otimizar(origem, atrasadas);
+  const ponte = primeiro.length ? primeiro[primeiro.length - 1] : origem;
+  return [...primeiro, ...otimizar(ponte, demais)];
 }
 
 const CUSTO_DIARIA = 168.0; /* hospedagem + refeições por pernoite (estimativa) */
@@ -1858,6 +1960,10 @@ function montarRoteiro(p) {
       noites: noitesRef,
     },
   };
+}
+
+if (typeof module !== "undefined") {
+  module.exports = { varreduraAngular, vizinhoMaisProximo, doisOpt, otimizar, distanciaCircuito };
 }
 
 
@@ -2846,9 +2952,44 @@ function ligarResultado() {
       if (q === "editar") { estado.plano.etapa = 2; return irPara("novo"); }
       if (q === "novo") { estado.plano.etapa = 4; return irPara("novo"); }
       if (q === "salvar") return salvarPlanejamento();
-      if (q === "exportar") return aviso("Relatório exportado. (Demonstrativo: não há geração de arquivo neste protótipo.)");
+      if (q === "exportar") return exportarRelatorio();
     };
   });
+}
+
+/* US09: exporta o planejamento como folha A4 (impressão ou "salvar como PDF"
+   do navegador). O cabeçalho com os parâmetros só existe na impressão; o
+   resto da folha é a própria tela de resultado, com menus e botões ocultos
+   pelo CSS de impressão. */
+function exportarRelatorio() {
+  const p = estado.plano;
+  const t = estado.roteiro.totais;
+  const modais = ["carro", "onibus", "aviao"].filter((m) => p.modais[m])
+    .map((m) => ({ carro: "carro", onibus: "ônibus", aviao: "avião" }[m])).join(", ");
+  const objetivo = { custo: "menor custo", tempo: "menor tempo",
+    equilibrio: `equilíbrio ${Math.round(p.pesoCusto * 100)}% custo / ${Math.round((1 - p.pesoCusto) * 100)}% tempo` }[p.objetivo];
+  const agora = new Date();
+
+  const cab = document.createElement("section");
+  cab.className = "so-impressao cabecalho-impressao";
+  cab.innerHTML = `
+    <div class="ci-titulo">
+      <div><b>Sistema de Roteirização de Visitas</b> · relatório de planejamento</div>
+      <div>${esc(estado.regional.nome)} · emitido em ${agora.toLocaleDateString("pt-BR")} às ${agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
+    </div>
+    <table class="ci-parametros">
+      <tr><th>Origem</th><td>${esc(p.origem.municipio)}/${p.origem.uf}</td><th>Período</th><td>${p.dataInicio.split("-").reverse().join("/")} a ${p.dataFim.split("-").reverse().join("/")}</td></tr>
+      <tr><th>Janela diária</th><td>${p.horaInicio} às ${p.horaFim}, até ${p.visitasDia} visitas de ${p.duracaoVisita} min</td><th>Objetivo</th><td>${objetivo}</td></tr>
+      <tr><th>Modais permitidos</th><td>${modais}</td><th>Pernoite</th><td>${p.aceitaPernoite ? "aceita" : "não aceita"}${p.priorizarAtrasadas ? " · atrasadas primeiro" : ""}</td></tr>
+      <tr><th>Agências</th><td>${t.visitas} visitas em ${t.dias} dia(s)</td><th>Total estimado</th><td>${dinheiro(t.custo)} · ${duracao(t.minutos)} · ${Math.round(t.km)} km</td></tr>
+    </table>`;
+  const conteudo = $("#conteudo");
+  conteudo.prepend(cab);
+  document.body.classList.add("imprimindo");
+  const limpar = () => { cab.remove(); document.body.classList.remove("imprimindo"); window.removeEventListener("afterprint", limpar); };
+  window.addEventListener("afterprint", limpar);
+  window.print();
+  setTimeout(limpar, 60000);
 }
 
 

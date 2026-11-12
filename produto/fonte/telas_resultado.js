@@ -344,7 +344,42 @@ function ligarResultado() {
       if (q === "editar") { estado.plano.etapa = 2; return irPara("novo"); }
       if (q === "novo") { estado.plano.etapa = 4; return irPara("novo"); }
       if (q === "salvar") return salvarPlanejamento();
-      if (q === "exportar") return aviso("Relatório exportado. (Demonstrativo: não há geração de arquivo neste protótipo.)");
+      if (q === "exportar") return exportarRelatorio();
     };
   });
+}
+
+/* US09: exporta o planejamento como folha A4 (impressão ou "salvar como PDF"
+   do navegador). O cabeçalho com os parâmetros só existe na impressão; o
+   resto da folha é a própria tela de resultado, com menus e botões ocultos
+   pelo CSS de impressão. */
+function exportarRelatorio() {
+  const p = estado.plano;
+  const t = estado.roteiro.totais;
+  const modais = ["carro", "onibus", "aviao"].filter((m) => p.modais[m])
+    .map((m) => ({ carro: "carro", onibus: "ônibus", aviao: "avião" }[m])).join(", ");
+  const objetivo = { custo: "menor custo", tempo: "menor tempo",
+    equilibrio: `equilíbrio ${Math.round(p.pesoCusto * 100)}% custo / ${Math.round((1 - p.pesoCusto) * 100)}% tempo` }[p.objetivo];
+  const agora = new Date();
+
+  const cab = document.createElement("section");
+  cab.className = "so-impressao cabecalho-impressao";
+  cab.innerHTML = `
+    <div class="ci-titulo">
+      <div><b>Sistema de Roteirização de Visitas</b> · relatório de planejamento</div>
+      <div>${esc(estado.regional.nome)} · emitido em ${agora.toLocaleDateString("pt-BR")} às ${agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
+    </div>
+    <table class="ci-parametros">
+      <tr><th>Origem</th><td>${esc(p.origem.municipio)}/${p.origem.uf}</td><th>Período</th><td>${p.dataInicio.split("-").reverse().join("/")} a ${p.dataFim.split("-").reverse().join("/")}</td></tr>
+      <tr><th>Janela diária</th><td>${p.horaInicio} às ${p.horaFim}, até ${p.visitasDia} visitas de ${p.duracaoVisita} min</td><th>Objetivo</th><td>${objetivo}</td></tr>
+      <tr><th>Modais permitidos</th><td>${modais}</td><th>Pernoite</th><td>${p.aceitaPernoite ? "aceita" : "não aceita"}${p.priorizarAtrasadas ? " · atrasadas primeiro" : ""}</td></tr>
+      <tr><th>Agências</th><td>${t.visitas} visitas em ${t.dias} dia(s)</td><th>Total estimado</th><td>${dinheiro(t.custo)} · ${duracao(t.minutos)} · ${Math.round(t.km)} km</td></tr>
+    </table>`;
+  const conteudo = $("#conteudo");
+  conteudo.prepend(cab);
+  document.body.classList.add("imprimindo");
+  const limpar = () => { cab.remove(); document.body.classList.remove("imprimindo"); window.removeEventListener("afterprint", limpar); };
+  window.addEventListener("afterprint", limpar);
+  window.print();
+  setTimeout(limpar, 60000);
 }

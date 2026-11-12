@@ -1,29 +1,90 @@
 /* =====================================================================
    MONTAGEM DO ROTEIRO
 
-   ATENÇÃO AO ESCOPO: aqui NÃO há algoritmo de roteirização. A sequência
-   de visitas vem de uma regra provisória (varredura angular em torno da
-   origem, com prazos vencidos puxados para a frente). É o ponto exato
-   onde o otimizador (TSP/VRP) entra numa próxima fase — trocar a função
-   sequenciar() é suficiente, o resto da tela não muda.
+   A sequência de visitas é otimizada (US12): vizinho mais próximo a partir
+   da origem, refinado por 2-opt (desfaz pares de trechos que se cruzam).
+   A varredura angular da versão anterior fica como referência de
+   comparação. O resto da tela não conhece o algoritmo: trocar
+   sequenciar() continua bastando.
 
-   O que É calculado de verdade: custo, tempo, distância e escolha de
-   modal por trecho, pelo modelo calibrado em decisao_transporte.py.
+   Custo, tempo, distância e escolha de modal por trecho vêm do modelo
+   calibrado (serve.py / motor.js).
    ===================================================================== */
 
-/* Varredura angular: ordena os pontos pelo ângulo em torno da origem,
-   o que produz um circuito sem cruzamentos grosseiros no mapa. */
-function sequenciar(origem, agencias, priorizarAtrasadas) {
+/* Varredura angular (versão anterior, mantida para comparação): ordena os
+   pontos pelo ângulo em torno da origem. */
+function varreduraAngular(origem, agencias) {
   const angulo = (a) =>
     Math.atan2(a.lat - origem.lat, (a.lon - origem.lon) * Math.cos((origem.lat * Math.PI) / 180));
+  return [...agencias].sort((a, b) => angulo(a) - angulo(b));
+}
 
-  const varrer = (lista) => [...lista].sort((a, b) => angulo(a) - angulo(b));
+function distanciaCircuito(origem, ordem) {
+  let total = 0;
+  let anterior = origem;
+  for (const a of ordem) { total += distanciaKm(anterior, a); anterior = a; }
+  return total + (ordem.length ? distanciaKm(anterior, origem) : 0);
+}
 
-  if (!priorizarAtrasadas) return varrer(agencias);
+/* Vizinho mais próximo: a partir da origem, sempre vai à agência ainda não
+   visitada mais perto. Rápido e razoável; deixa alguns cruzamentos. */
+function vizinhoMaisProximo(origem, agencias) {
+  const restantes = [...agencias];
+  const ordem = [];
+  let atual = origem;
+  while (restantes.length) {
+    let melhor = 0;
+    for (let i = 1; i < restantes.length; i++) {
+      if (distanciaKm(atual, restantes[i]) < distanciaKm(atual, restantes[melhor])) melhor = i;
+    }
+    atual = restantes.splice(melhor, 1)[0];
+    ordem.push(atual);
+  }
+  return ordem;
+}
 
+/* 2-opt: enquanto inverter um trecho da rota encurtar o circuito, inverte.
+   Remove os cruzamentos que o vizinho mais próximo deixa. */
+function doisOpt(origem, ordem) {
+  const rota = [origem, ...ordem, origem];
+  let melhorou = true;
+  while (melhorou) {
+    melhorou = false;
+    for (let i = 1; i < rota.length - 2; i++) {
+      for (let j = i + 1; j < rota.length - 1; j++) {
+        const antes = distanciaKm(rota[i - 1], rota[i]) + distanciaKm(rota[j], rota[j + 1]);
+        const depois = distanciaKm(rota[i - 1], rota[j]) + distanciaKm(rota[i], rota[j + 1]);
+        if (depois < antes - 1e-9) {
+          const trecho = rota.slice(i, j + 1).reverse();
+          rota.splice(i, trecho.length, ...trecho);
+          melhorou = true;
+        }
+      }
+    }
+  }
+  return rota.slice(1, -1);
+}
+
+/* 2-opt a partir de dois pontos de partida (vizinho mais próximo e varredura
+   angular); fica com o menor circuito. Nunca pior que a varredura. */
+function otimizar(origem, agencias) {
+  if (agencias.length < 2) return [...agencias];
+  const candidatos = [
+    doisOpt(origem, vizinhoMaisProximo(origem, agencias)),
+    doisOpt(origem, varreduraAngular(origem, agencias)),
+  ];
+  return candidatos.sort((a, b) => distanciaCircuito(origem, a) - distanciaCircuito(origem, b))[0];
+}
+
+/* Sequência final. Com "priorizar atrasadas", as agências com prazo vencido
+   formam o primeiro bloco e cada bloco é otimizado separadamente. */
+function sequenciar(origem, agencias, priorizarAtrasadas) {
+  if (!priorizarAtrasadas) return otimizar(origem, agencias);
   const atrasadas = agencias.filter((a) => dias(a.dataLimite) < 0);
   const demais = agencias.filter((a) => dias(a.dataLimite) >= 0);
-  return [...varrer(atrasadas), ...varrer(demais)];
+  const primeiro = otimizar(origem, atrasadas);
+  const ponte = primeiro.length ? primeiro[primeiro.length - 1] : origem;
+  return [...primeiro, ...otimizar(ponte, demais)];
 }
 
 const CUSTO_DIARIA = 168.0; /* hospedagem + refeições por pernoite (estimativa) */
@@ -133,4 +194,8 @@ function montarRoteiro(p) {
       noites: noitesRef,
     },
   };
+}
+
+if (typeof module !== "undefined") {
+  module.exports = { varreduraAngular, vizinhoMaisProximo, doisOpt, otimizar, distanciaCircuito };
 }
