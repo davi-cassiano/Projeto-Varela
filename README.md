@@ -6,7 +6,7 @@ agrupa as agências em regionais, permite montar uma viagem de visitas e
 recomenda a sequência, o meio de transporte e o custo de cada trecho.
 
 **Disciplina:** Projeto e Gestão de Dados (CCD610) — Projeto Integrador
-**Situação:** checkpoints das Aulas 1–3 e 4–6 e o ciclo de qualidade das Aulas 8 e 9 entregues; a Aula 10 é a apresentação final
+**Situação:** projeto concluído — checkpoints das Aulas 1–3 e 4–6, ciclo de qualidade das Aulas 8 e 9 e sprint final com as 14 stories entregues; apresentação final na Aula 10
 
 [![qualidade](https://github.com/davi-cassiano/Projeto-Varela/actions/workflows/qualidade.yml/badge.svg)](https://github.com/davi-cassiano/Projeto-Varela/actions/workflows/qualidade.yml)
 
@@ -55,7 +55,16 @@ vira backlog, o backlog vira arquitetura e a arquitetura vira plano.
 | Aula 8 · Ata | Decisões e o que muda na próxima sprint | [`docs/atas/2026-11-12.md`](docs/atas/2026-11-12.md) |
 | Aula 9 · Qualidade de dados | 6 regras em Python e SQL, relatório, SBAR da pior falha, governança e monitoramento | [`docs/qualidade.md`](docs/qualidade.md), [`src/validate.py`](src/validate.py), [`sql/qualidade.sql`](sql/qualidade.sql) |
 | Aula 9 · Testes e CI | 79 testes (bordas, parametrização, fumaça do pipeline), ruff, 88% de cobertura, GitHub Actions | [`tests/`](tests), [`.github/workflows/qualidade.yml`](.github/workflows/qualidade.yml) |
-| Aula 9 · Revisão de PR | Pull request revisado por colega com a lista da aula | PR desta entrega |
+| Aula 9 · Revisão de PR | Pull request revisado por colega com a lista da aula | PRs #28 e #29 |
+
+### Sprint final · 12/11 — produto completo
+
+| Story | O quê | Onde está |
+| --- | --- | --- |
+| US12 | Sequência otimizada: vizinho mais próximo + 2-opt, 12% menor que a varredura em 20 seleções reais, nunca pior | [`produto/fonte/roteiro.js`](produto/fonte/roteiro.js), [`src/serve.py`](src/serve.py), [`tests/test_sequencia.py`](tests/test_sequencia.py) |
+| US14 | Preços atualizados automaticamente: leitura da publicação semanal da ANP, monitor com alerta de drift, execução agendada | [`src/ingest.py`](src/ingest.py) `AnpSource`, [`src/monitor.py`](src/monitor.py), [`.github/workflows/atualizar-precos.yml`](.github/workflows/atualizar-precos.yml) |
+| US09 | Exportação do planejamento em A4 | [`produto/fonte/telas_resultado.js`](produto/fonte/telas_resultado.js) |
+| US13 | Painel: % dentro da periodicidade contra a meta de 90% e custo acumulado | [`produto/fonte/app.template.html`](produto/fonte/app.template.html) |
 
 ---
 
@@ -141,7 +150,15 @@ gasolina em cada estado a partir do preço nacional, da diferença recente do
 estado e do mês, com a série real da ANP. Treino até dezembro de 2019 e teste em
 2020–2021, sem embaralhar as semanas. Erro médio de **R$ 0,095 por litro**,
 contra R$ 0,199 do baseline que usava o mesmo preço para todos os estados —
-52% menos erro. Ver `src/train.py` e `docs/arquitetura.md`.
+52% menos erro. Com a série atual da ANP (até novembro de 2026) e o mesmo corte,
+o teste cobre 2020–2026: R$ 0,116 contra R$ 0,238 do baseline, 51% menos; nas
+últimas quatro semanas o erro é de R$ 0,105 (`python -m src.monitor`). Ver
+`src/train.py`, `src/monitor.py` e `docs/arquitetura.md`.
+
+**Sequência de visitas — vizinho mais próximo + 2-opt (US12).** A ordem das
+visitas minimiza o deslocamento: em 20 seleções reais de 5 a 15 agências, o
+circuito fica 12% menor que o da varredura angular anterior e nunca maior.
+Ver `produto/fonte/roteiro.js`, `src/serve.py` e `tests/test_sequencia.py`.
 
 **Curvas de custo calibradas.** Custo e tempo de ônibus e avião no formato
 `custo = a + b × distância^c`, com coeficientes calibrados sobre faixas
@@ -215,12 +232,14 @@ naquela pasta.
 Um comando roda tudo, a partir da raiz do projeto:
 
 ```bash
-python -m src.pipeline
-python -m src.pipeline --preco-gasolina 6.45   # preço nacional da semana (ANP), em R$/L
+python -m src.pipeline                          # série 2004–2021 e preço nacional de R$ 6,70
+python -m src.pipeline --atualizar-precos       # US14: baixa a publicação semanal da ANP e usa o preço da última semana
+python -m src.pipeline --preco-gasolina 6.45    # preço nacional informado à mão
+python -m src.monitor                           # reavalia o modelo nas últimas 4 semanas; alerta acima de R$ 0,25/L
 ```
 
-Sem `--preco-gasolina`, o pipeline usa R$ 6,70 como referência. Atualize o valor
-pela síntese semanal da ANP antes de gerar o produto.
+O produto versionado foi gerado com `--atualizar-precos` em 12/11/2026: série da
+ANP até 07/11/2026 e preço nacional de R$ 6,651/L.
 
 São quatro estágios, cada um num módulo com responsabilidade única:
 
@@ -274,13 +293,15 @@ conexão.
 │   ├── train.py         treino: k-means e modelo de preço
 │   ├── serve.py         serving: modais, preço por estado, pacote do produto
 │   ├── validate.py      regras de qualidade de dados e relatório
+│   ├── monitor.py       US14: reavaliação semanal do modelo de preço com alerta
 │   └── pipeline.py      orquestração, único ponto que conhece as fontes concretas
 ├── sql/
 │   ├── qualidade.sql    as mesmas regras de qualidade em SQL
 │   └── rodar_qualidade.py
 ├── tests/               pytest: unitários com bordas, regras de qualidade, modelo e fumaça do pipeline
 ├── .github/workflows/
-│   └── qualidade.yml    CI: ruff, pytest com cobertura e validação de dados
+│   ├── qualidade.yml    CI: ruff, pytest com cobertura e validação de dados
+│   └── atualizar-precos.yml   US14: ingestão programada da ANP, toda segunda
 ├── notebooks/
 │   └── modelos.ipynb    k-means e regressão Ridge, executável no Google Colab
 ├── dados/
@@ -331,16 +352,19 @@ O projeto segue o CRISP-DM. Situação de cada etapa:
 
 ## Próximos passos
 
-O plano completo está em [`docs/planejamento.md`](docs/planejamento.md). A
-Sprint 1 entregou US05, US10 e US11; as Sprints 2 a 4 previstas não foram
-executadas no prazo (risco R6, registrado), e o ciclo de 12/11 entregou as ações
-de qualidade das Aulas 8 e 9. O replanejamento:
+O plano completo está em [`docs/planejamento.md`](docs/planejamento.md). As 14
+stories do backlog estão entregues: Sprint 1 (US05, US10, US11), protótipo
+(stories de interface) e sprint final de 12/11 (US09, US12, US13, US14). As
+Sprints 2 a 4 originalmente previstas não aconteceram no prazo (risco R6,
+registrado) e foram substituídas pelo ciclo de qualidade e pela sprint final.
 
-| Ciclo | Foco | Pontos |
-| --- | --- | --- |
-| Próxima sprint | Limite de desvio por município (#16); validar com um gerente real as stories de interface (US01–US04, US07, US08) | 18 |
-| Depois | Detalhe do trecho, salvar e exportar, sequência otimizada (US06, US09, US12) | 16 |
-| Depois | Painel da regional e preços atualizados automaticamente (US13, US14) | 8 |
+O que fica para depois do curso:
+
+| Item | Por quê |
+| --- | --- |
+| Issue #16 — limite de desvio proporcional ao município | 10 agências do Rio perdem a coordenada de bairro com o limite único de 30 km |
+| Validação das stories de interface com um gerente real | Depende de acesso ao banco; é o teste da hipótese do Canvas |
+| Reavaliação de maturidade com o mesmo checklist | Para medir se as três ações do plano mudaram as notas |
 
 Fora do escopo do MVP: geocodificação por endereço, tarifas em tempo real,
 persistência em banco, autenticação e integração com a agenda corporativa.

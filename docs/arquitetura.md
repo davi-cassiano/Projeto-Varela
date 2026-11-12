@@ -188,6 +188,11 @@ diferença de cada estado sobre o preço nacional de referência atual (R$ 6,70)
 assumindo que a diferença entre estados é mais estável que o nível de preço.
 Validar essa premissa com dados recentes é a US14.
 
+**Com a série atual (US14).** Lendo a publicação da ANP até 07/11/2026 e mantendo o
+corte em jan/2020, o teste passa a cobrir 2020–2026: baseline R$ 0,238/L, Ridge
+R$ 0,116/L (−51%). Nas últimas quatro semanas publicadas o erro é de R$ 0,105/L,
+abaixo do alerta de R$ 0,25/L do RNF06 (`python -m src.monitor`).
+
 Os dois modelos — o k-means das regionais e esta regressão — estão reproduzidos
 num notebook executável no Google Colab, com os mesmos dados e o mesmo código:
 [notebooks/modelos.ipynb](https://colab.research.google.com/github/davi-cassiano/Projeto-Varela/blob/main/notebooks/modelos.ipynb).
