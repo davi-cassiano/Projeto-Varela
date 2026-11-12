@@ -1,0 +1,29 @@
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+src = ["src", "tests"]
+extend-exclude = ["produto", "dados", "notebooks"]
+
+[tool.ruff.lint]
+# E/W: estilo e erros (pycodestyle) · F: erros lógicos (pyflakes) · I: ordem dos imports
+# B: bugs prováveis (bugbear) · UP: sintaxe moderna · N: nomes
+select = ["E", "W", "F", "I", "B", "UP"]
+ignore = ["E741"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["src/pipeline.py"]  # orquestração: só a main() lê arquivos reais; executar() é coberto pelo teste de fumaça
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false

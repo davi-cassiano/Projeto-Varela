@@ -198,5 +198,6 @@ num notebook executável no Google Colab, com os mesmos dados e o mesmo código:
 python -m pytest tests/ -v
 ```
 
-23 testes, um arquivo por módulo. Cada critério de aceite que pode ser
-verificado no pipeline virou um teste.
+79 testes. Cada critério de aceite que pode ser verificado no pipeline virou um
+teste; a Aula 9 acrescentou casos de borda parametrizados, as regras de qualidade
+de dados e um teste de fumaça do pipeline inteiro. Detalhes em [`qualidade.md`](qualidade.md).

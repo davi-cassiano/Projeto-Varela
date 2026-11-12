@@ -19,7 +19,6 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
-
 # ---------------------------------------------------------------------
 # Abstração da fonte de dados (DIP)
 # ---------------------------------------------------------------------
@@ -176,6 +175,7 @@ FONTES_AUXILIARES = {
 def baixar_bases_auxiliares(destino: str = "dados") -> None:
     """Baixa o que falta. Só esta função usa internet no pipeline inteiro."""
     import os
+
     import requests
 
     os.makedirs(destino, exist_ok=True)

@@ -184,6 +184,22 @@ que conduz — Gabriel na base de agências (R1, R7), Luca no modelo de preço
 (R2, R4), Victor no negócio e na rota (R3, R5) e Davi na gestão do repositório
 e do prazo (R6).
 
+### Revisão da matriz em 12/11/2026
+
+Primeira revisão depois do checkpoint, feita na autoavaliação de maturidade
+([`autoavaliacao-maturidade.md`](autoavaliacao-maturidade.md)). O que mudou:
+
+| Risco | O que aconteceu | Decisão |
+| --- | --- | --- |
+| **R6** | **Materializou-se.** Entre 15/10 e 12/11 nenhuma sprint foi executada: o grupo concentrou-se em provas e trabalhos de outras disciplinas. | Registrado como ocorrido. Resposta nova: ciclo curto até a Aula 10 com as três ações do plano de melhoria, em vez de retomar as Sprints 2 a 4 como planejadas. Probabilidade sobe para Alta. |
+| **R1** | Medido pela regra 5 de qualidade de dados: 290 descartes (14,4%), acima do limite de 10%; 10 agências do Rio descartadas indevidamente. | Mantido. Ação: Issue #16, limite proporcional ao município, na próxima sprint (Gabriel). |
+| **R2** | Confirmado pela regra 6: série com 2.021 dias de idade. | Mantido. SBAR em [`qualidade.md`](qualidade.md) §4; preço nacional por parâmetro até a US14. |
+| **R4** | Sem novidade: não houve atualização da série para reavaliar. | Mantido. |
+| **R3, R5, R7** | Sem mudança. | Mantidos. |
+
+Próxima revisão: no fim do ciclo, antes da Aula 10. A matriz passa a registrar a
+data de cada revisão, como o estudo de caso da Aula 8 recomenda.
+
 ---
 
 ## 4. Plano da Sprint 1
@@ -248,3 +264,31 @@ sprints elas passam a ter o critério de aceite validado com um gerente real.
 
 Total de 58 pontos em 4 sprints. A velocidade real medida na Sprint 1 recalibra
 esta previsão.
+
+### O que aconteceu com este plano (registro de 12/11/2026)
+
+As Sprints 2 a 4 não foram executadas no período previsto (risco R6). Em 12/11 o
+grupo decidiu, em vez de fingir o plano, fechar o ciclo com as ações de qualidade
+das Aulas 8 e 9 e levar para a Aula 10 um plano replanejado:
+
+| Ciclo | Conteúdo | Situação |
+| --- | --- | --- |
+| Sprint 1 | US05, US10, US11, testes e PR | Entregue em 15/10 |
+| Ciclo de qualidade (12/11) | Validação de dados, suíte de testes, CI, autoavaliação, revisão de riscos | Entregue |
+| Próxima sprint | Issue #16, validação das stories de interface com um gerente (US01–US04, US07, US08) | Planejada |
+| Depois | US06, US09, US12, US13, US14 | Backlog |
+
+---
+
+## 6. Medições por ciclo
+
+Ação 2 do plano de melhoria: uma linha por ciclo, para as métricas serem
+acompanhadas e não medidas uma vez só.
+
+| Ciclo | Data | Pontos planejados / entregues | Testes | Cobertura | MAE do modelo (R$/L) | Regras de qualidade | Riscos revisados |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Sprint 1 | 15/10/2026 | 20 / 19 | 23 | não medida | 0,095 | não havia | não |
+| Ciclo de qualidade | 12/11/2026 | — | 79 | 88% | 0,095 (sem nova série) | 4 de 6 passam | sim |
+
+Como medir: `pytest --cov=src` para testes e cobertura; `python -m src.pipeline`
+imprime o MAE; `python -m src.validate` gera o relatório de qualidade.

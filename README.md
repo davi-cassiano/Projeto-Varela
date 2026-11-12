@@ -6,7 +6,9 @@ agrupa as agências em regionais, permite montar uma viagem de visitas e
 recomenda a sequência, o meio de transporte e o custo de cada trecho.
 
 **Disciplina:** Projeto e Gestão de Dados (CCD610) — Projeto Integrador
-**Situação:** checkpoints das Aulas 1–3 e 4–6 entregues; próximo passo é a Sprint 2
+**Situação:** checkpoints das Aulas 1–3 e 4–6 e o ciclo de qualidade das Aulas 8 e 9 entregues; a Aula 10 é a apresentação final
+
+[![qualidade](https://github.com/davi-cassiano/Projeto-Varela/actions/workflows/qualidade.yml/badge.svg)](https://github.com/davi-cassiano/Projeto-Varela/actions/workflows/qualidade.yml)
 
 ## Integrantes
 
@@ -43,6 +45,17 @@ vira backlog, o backlog vira arquitetura e a arquitetura vira plano.
 | Quadro | Backlog com pontos, por onda e situação | [GitHub Projects](https://github.com/users/davi-cassiano/projects/1/views/1) |
 | Apresentação | 19 slides | [`docs/apresentacao-checkpoint-4-6.pptx`](docs/apresentacao-checkpoint-4-6.pptx) |
 | Notebook | Os dois modelos (k-means e regressão Ridge) executáveis no Google Colab, com os testes do repositório | [Abrir no Colab](https://colab.research.google.com/github/davi-cassiano/Projeto-Varela/blob/main/notebooks/modelos.ipynb) · [`notebooks/modelos.ipynb`](notebooks/modelos.ipynb) |
+
+### Ciclo de qualidade · Aulas 8 e 9 — Maturidade, governança e qualidade
+
+| Parte | O quê | Onde está |
+| --- | --- | --- |
+| Aula 8 · Autoavaliação | Checklist CMMI/MPS-BR em 6 áreas, com evidência e nota N/P/L/F | [`docs/autoavaliacao-maturidade.md`](docs/autoavaliacao-maturidade.md) |
+| Aula 8 · Plano de melhoria | 3 ações com responsável, prazo e indicador | [`docs/plano-melhoria.md`](docs/plano-melhoria.md) |
+| Aula 8 · Ata | Decisões e o que muda na próxima sprint | [`docs/atas/2026-11-12.md`](docs/atas/2026-11-12.md) |
+| Aula 9 · Qualidade de dados | 6 regras em Python e SQL, relatório, SBAR da pior falha, governança e monitoramento | [`docs/qualidade.md`](docs/qualidade.md), [`src/validate.py`](src/validate.py), [`sql/qualidade.sql`](sql/qualidade.sql) |
+| Aula 9 · Testes e CI | 79 testes (bordas, parametrização, fumaça do pipeline), ruff, 88% de cobertura, GitHub Actions | [`tests/`](tests), [`.github/workflows/qualidade.yml`](.github/workflows/qualidade.yml) |
+| Aula 9 · Revisão de PR | Pull request revisado por colega com a lista da aula | PR desta entrega |
 
 ---
 
@@ -220,20 +233,28 @@ São quatro estágios, cada um num módulo com responsabilidade única:
 
 O resumo da execução fica em `dados/saida/relatorio_execucao.json`.
 
-### Testes
+### Qualidade: lint, testes e validação de dados
 
 ```bash
-python -m pytest tests/ -v
+ruff check src/ tests/ sql/                      # análise estática
+pytest --cov=src --cov-fail-under=70            # 79 testes com cobertura (88%)
+python -m src.validate                          # 6 regras de qualidade de dados → dados/saida/relatorio_qualidade.md
+python -m src.validate --amostra                # as mesmas regras sobre o recorte versionado (é o que o CI roda)
+python sql/rodar_qualidade.py                   # as mesmas regras em SQL
 ```
 
-23 testes, um arquivo por módulo, ligados aos critérios de aceite do backlog.
+Os três primeiros comandos rodam no GitHub Actions a cada push e pull request
+([`.github/workflows/qualidade.yml`](.github/workflows/qualidade.yml)). Os testes
+cobrem funções de features com casos de borda e parametrização, as regras de
+qualidade, o critério de aceite do modelo e um teste de fumaça do pipeline inteiro
+com uma amostra fixa, sem arquivo real.
 
 ### No Google Colab, sem instalar nada
 
 [Abrir `notebooks/modelos.ipynb` no Colab](https://colab.research.google.com/github/davi-cassiano/Projeto-Varela/blob/main/notebooks/modelos.ipynb) e usar *Ambiente de execução →
 Executar tudo*. O notebook reproduz o k-means das regionais (US01) e a regressão
 do preço por estado (US11) a partir dos dois arquivos pequenos em `dados/colab/`,
-e no fim clona o repositório e roda os 23 testes.
+e no fim clona o repositório e roda os testes.
 
 ### Produto
 
@@ -252,8 +273,14 @@ conexão.
 │   ├── features.py      preparação: coordenadas e atributos
 │   ├── train.py         treino: k-means e modelo de preço
 │   ├── serve.py         serving: modais, preço por estado, pacote do produto
+│   ├── validate.py      regras de qualidade de dados e relatório
 │   └── pipeline.py      orquestração, único ponto que conhece as fontes concretas
-├── tests/               pytest, um arquivo por módulo
+├── sql/
+│   ├── qualidade.sql    as mesmas regras de qualidade em SQL
+│   └── rodar_qualidade.py
+├── tests/               pytest: unitários com bordas, regras de qualidade, modelo e fumaça do pipeline
+├── .github/workflows/
+│   └── qualidade.yml    CI: ruff, pytest com cobertura e validação de dados
 ├── notebooks/
 │   └── modelos.ipynb    k-means e regressão Ridge, executável no Google Colab
 ├── dados/
@@ -305,13 +332,15 @@ O projeto segue o CRISP-DM. Situação de cada etapa:
 ## Próximos passos
 
 O plano completo está em [`docs/planejamento.md`](docs/planejamento.md). A
-Sprint 1 entregou US05, US10 e US11. As próximas:
+Sprint 1 entregou US05, US10 e US11; as Sprints 2 a 4 previstas não foram
+executadas no prazo (risco R6, registrado), e o ciclo de 12/11 entregou as ações
+de qualidade das Aulas 8 e 9. O replanejamento:
 
-| Sprint | Foco | Pontos |
+| Ciclo | Foco | Pontos |
 | --- | --- | --- |
-| 2 | Validar com um gerente real as stories de interface da Onda 1 (US01–US04, US07, US08); limite de desvio por município (#16) | 18 |
-| 3 | Detalhe do trecho, salvar e exportar, sequência otimizada (US06, US09, US12) | 16 |
-| 4 | Painel da regional e preços atualizados automaticamente (US13, US14) | 8 |
+| Próxima sprint | Limite de desvio por município (#16); validar com um gerente real as stories de interface (US01–US04, US07, US08) | 18 |
+| Depois | Detalhe do trecho, salvar e exportar, sequência otimizada (US06, US09, US12) | 16 |
+| Depois | Painel da regional e preços atualizados automaticamente (US13, US14) | 8 |
 
 Fora do escopo do MVP: geocodificação por endereço, tarifas em tempo real,
 persistência em banco, autenticação e integração com a agenda corporativa.

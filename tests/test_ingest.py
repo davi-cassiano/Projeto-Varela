@@ -4,8 +4,7 @@ funciona, nenhum teste precisa de arquivo em disco."""
 import pandas as pd
 import pytest
 
-from src.ingest import (DadosInvalidos, MemorySource, carregar_agencias,
-                        carregar_precos, limpar_texto)
+from src.ingest import DadosInvalidos, MemorySource, carregar_agencias, carregar_precos, limpar_texto
 
 
 def agencia(instituicao, cod=1, **extra):

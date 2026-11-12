@@ -21,7 +21,6 @@ Stories atendidas: US03, US05, US06, US07 (cálculo por trecho) e US11
 from __future__ import annotations
 
 import json
-import math
 import re
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
@@ -147,7 +146,7 @@ def precos_por_uf(estimador: EstimadorPreco, atributos: pd.DataFrame,
     ultima = atributos.sort_values("data").groupby("uf").tail(1).copy()
     ultima["nacional"] = preco_nacional
     previsto = estimador.prever(ultima)
-    return {uf: round(float(p), 3) for uf, p in zip(ultima["uf"], previsto)}
+    return {uf: round(float(p), 3) for uf, p in zip(ultima["uf"], previsto, strict=True)}
 
 
 # ---------------------------------------------------------------------
