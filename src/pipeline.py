@@ -108,7 +108,9 @@ def main() -> None:
             preco_nacional = preco_nacional_atual(ingest.carregar_precos(fonte_precos))
     else:
         fonte_precos = ingest.TsvSource(os.path.join(BRUTOS, "2004-2021.tsv"))
-        preco_nacional = args.preco_gasolina if args.preco_gasolina is not None else serve.PRECO_GASOLINA_NACIONAL
+        preco_nacional = args.preco_gasolina
+        if preco_nacional is None:
+            preco_nacional = serve.PRECO_GASOLINA_NACIONAL
     rel = executar(
         fonte_agencias=ingest.ExcelSource(consolidada, "Agencias_Geocodificadas"),
         fonte_precos=fonte_precos,
