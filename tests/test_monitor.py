@@ -64,3 +64,28 @@ def test_choque_nas_ultimas_semanas_dispara_alerta():
     m = avaliar_recente(atributos_preco(_serie(choque_final=1.0)))
     assert m.alerta and m.mae_recente > LIMITE_ALERTA
     assert m.mae_recente < m.mae_baseline_recente     # mesmo no choque, melhor que o baseline
+
+
+def test_deriva_lenta_dispara_pela_janela_longa():
+    """Revisão do PR #29: um desvio pequeno por semana passa na janela de 4
+    semanas e é pego na de 12."""
+    datas = pd.date_range("2025-01-04", periods=80, freq="7D")
+    linhas = []
+    for i, d in enumerate(datas):
+        deriva = 0.06 * max(0, i - 67)          # cresce 6 centavos por semana nas últimas 12
+        linhas.append(dict(data=d, estado="SAO PAULO", preco=6.0))
+        linhas.append(dict(data=d, estado="ACRE", preco=7.0 + deriva))
+        linhas.append(dict(data=d, estado="AMAPA", preco=5.5 - deriva))
+    m = avaliar_recente(atributos_preco(pd.DataFrame(linhas)))
+    assert m.alerta_longo and m.alerta
+
+
+def test_planilha_com_coluna_renomeada_falha_na_leitura(tmp_path):
+    """Revisão do PR #29: coluna faltando é detectada em AnpSource, não depois."""
+    cab = [["AGÊNCIA NACIONAL DO PETRÓLEO"] + [None] * 4]
+    titulos = ["DATA INICIAL", "DATA FINAL", "ESTADO", "PRODUTO", "PRECO MEDIO"]
+    caminho = tmp_path / "anp.xlsx"
+    pd.DataFrame(cab + [titulos] + [["2026-10-25", "2026-10-31", "SAO PAULO", "GASOLINA COMUM", 6.1]]).to_excel(
+        caminho, header=False, index=False)
+    with pytest.raises(DadosInvalidos, match="PREÇO MÉDIO REVENDA"):
+        AnpSource.ler_planilha(str(caminho))

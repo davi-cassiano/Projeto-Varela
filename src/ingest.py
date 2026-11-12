@@ -97,6 +97,8 @@ class AnpSource(DataSource):
         cab = linhas[0]
         df = bruto.iloc[cab + 1:].copy()
         df.columns = [str(c).strip() for c in bruto.iloc[cab]]
+        # Falha já na leitura se a ANP renomear uma coluna (revisão do PR #29)
+        exigir_colunas(df, ["DATA FINAL", "ESTADO", "PRODUTO", "PREÇO MÉDIO REVENDA"], "planilha da ANP")
         return df.dropna(how="all").reset_index(drop=True)
 
     def load(self) -> pd.DataFrame:

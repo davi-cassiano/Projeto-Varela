@@ -25,7 +25,8 @@ import pandas as pd
 from . import features, ingest, train
 
 LIMITE_ALERTA = 0.25   # RNF06: MAE acima disso nas últimas semanas dispara alerta
-SEMANAS_RECENTES = 4
+SEMANAS_RECENTES = 4   # janela curta: choque de preço
+SEMANAS_LONGAS = 12    # janela longa: deriva lenta (revisão do PR #29)
 
 
 @dataclass
@@ -37,25 +38,37 @@ class Monitoramento:
     preco_nacional_atual: float
     alerta: bool
     limite: float = LIMITE_ALERTA
+    semanas_longas: int = SEMANAS_LONGAS
+    mae_longo: float = 0.0
+    alerta_longo: bool = False
 
 
-def avaliar_recente(atributos: pd.DataFrame, semanas: int = SEMANAS_RECENTES,
-                    limite: float = LIMITE_ALERTA) -> Monitoramento:
-    """Treina com tudo menos as últimas `semanas` e mede o erro nelas:
-    é o erro que o produto teria cometido se tivesse sido gerado antes
-    dessas semanas, com o modelo da US11."""
-    datas = sorted(atributos["data"].unique())
+def _mae_ultimas(atributos: pd.DataFrame, datas: list, semanas: int) -> tuple[float, float]:
+    """Treina com tudo antes das últimas `semanas` e mede o erro nelas."""
     corte = datas[-semanas]
     treino, teste = atributos[atributos["data"] < corte], atributos[atributos["data"] >= corte]
     modelo = train.avaliar(train.RegressaoEstado().ajustar(treino), teste)
     baseline = train.avaliar(train.BaselineNacional().ajustar(treino), teste)
+    return modelo.mae, baseline.mae
+
+
+def avaliar_recente(atributos: pd.DataFrame, semanas: int = SEMANAS_RECENTES,
+                    limite: float = LIMITE_ALERTA, semanas_longas: int = SEMANAS_LONGAS) -> Monitoramento:
+    """Duas janelas: a curta pega um choque de preço; a longa, uma deriva
+    lenta que semana a semana fica abaixo do limite. Qualquer uma acima do
+    limite dispara o alerta (é o erro que o produto teria cometido se tivesse
+    sido gerado antes dessas semanas, com o modelo da US11)."""
+    datas = sorted(atributos["data"].unique())
+    mae_curto, mae_base = _mae_ultimas(atributos, datas, semanas)
+    mae_longo, _ = _mae_ultimas(atributos, datas, min(semanas_longas, len(datas) - 1))
     ultima = atributos[atributos["data"] == datas[-1]]
     return Monitoramento(
         ultima_semana=pd.Timestamp(datas[-1]).date().isoformat(),
-        semanas_avaliadas=int(teste["data"].nunique()),
-        mae_recente=round(modelo.mae, 3), mae_baseline_recente=round(baseline.mae, 3),
+        semanas_avaliadas=semanas,
+        mae_recente=round(mae_curto, 3), mae_baseline_recente=round(mae_base, 3),
         preco_nacional_atual=round(float(ultima["nacional"].iloc[0]), 3),
-        alerta=bool(modelo.mae > limite), limite=limite,
+        alerta=bool(mae_curto > limite or mae_longo > limite), limite=limite,
+        semanas_longas=semanas_longas, mae_longo=round(mae_longo, 3), alerta_longo=bool(mae_longo > limite),
     )
 
 
@@ -75,6 +88,7 @@ def relatorio_markdown(m: Monitoramento, gerado_em: date) -> str:
         f"| Preço nacional atual (média dos estados) | R$ {m.preco_nacional_atual:.3f}/L |",
         f"| MAE do modelo nas últimas {m.semanas_avaliadas} semanas | R$ {m.mae_recente:.3f}/L |",
         f"| MAE do baseline nas mesmas semanas | R$ {m.mae_baseline_recente:.3f}/L |",
+        f"| MAE do modelo nas últimas {m.semanas_longas} semanas (deriva lenta) | R$ {m.mae_longo:.3f}/L |",
         f"| Limite de alerta (RNF06) | R$ {m.limite:.2f}/L |",
         f"| Situação | {situacao} |", "",
     ])
