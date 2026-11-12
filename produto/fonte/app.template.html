@@ -6,38 +6,48 @@
 <title>Roteirização de Visitas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --tinta:#12263A;        /* azul-marinho institucional: cor de comando */
-  --tinta-2:#1D3A55;
-  --tinta-3:#2C4E6E;
+  /* Identidade: atlas rodoviário. Papel topográfico, tinta petróleo,
+     âmbar de placa de estrada; o verde segue exclusivo para economia. */
+  --tinta:#16303A;        /* petróleo: cor de comando e da rota */
+  --tinta-2:#234552;
+  --tinta-3:#355C6B;
+  --placa:#C9871F;        /* âmbar de sinalização: origem e destaque */
+  --placa-fraca:#F6E7CC;
   --ganho:#0E7C66;        /* verde: exclusivo para economia e redução */
-  --ganho-fraco:#E4F1ED;
-  --alerta:#9A5B12;       /* âmbar: prioridade alta e prazo apertado */
-  --alerta-fraco:#FBF0DF;
+  --ganho-fraco:#E1EFE9;
+  --alerta:#9A5B12;       /* prioridade alta e prazo apertado */
+  --alerta-fraco:#F8EEDC;
   --risco:#A3271F;
-  --tela:#EFF2F6;
-  --papel:#FFFFFF;
-  --linha:#D9E0E8;
-  --linha-forte:#C2CCD8;
-  --texto:#12263A;
-  --texto-fraco:#5A7185;
-  --texto-tenue:#889BAC;
-  --raio:6px;
-  --sombra:0 1px 2px rgba(18,38,58,.06);
+  --tela:#E8EBE4;         /* papel topográfico */
+  --papel:#FBFBF8;
+  --linha:#D3D8CF;
+  --linha-forte:#B5BDB3;
+  --texto:#16303A;
+  --texto-fraco:#53676F;
+  --texto-tenue:#7F919A;
+  --raio:3px;
+  --sombra:none;
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'Overpass',-apple-system,'Segoe UI',sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
   background:var(--tela);
   color:var(--texto);
-  font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-family:var(--sans);
   font-size:14px;
   line-height:1.5;
+  background-image:
+    linear-gradient(rgba(22,48,58,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22,48,58,.035) 1px, transparent 1px);
+  background-size:28px 28px;
   -webkit-font-smoothing:antialiased;
 }
-h1,h2,h3{font-family:'IBM Plex Serif',Georgia,serif;font-weight:600;margin:0;letter-spacing:-.01em}
+h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;letter-spacing:-.015em;font-variation-settings:'opsz' 72}
 button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 button{cursor:pointer}
 .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
@@ -47,12 +57,13 @@ button{cursor:pointer}
 
 .lateral{
   background:var(--tinta);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.07' stroke-width='1'%3E%3Cpath d='M-20 60c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 100c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 140c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 180c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 220c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 20c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3C/g%3E%3C/svg%3E");
   color:#C9D6E2;
   display:flex;flex-direction:column;
   position:sticky;top:0;height:100vh;
 }
 .marca{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.09)}
-.marca-nome{font-family:'IBM Plex Serif',serif;font-size:16px;color:#fff;font-weight:600;line-height:1.25}
+.marca-nome{font-family:var(--serif);font-size:19px;color:#fff;font-weight:600;line-height:1.15;letter-spacing:-.01em}
 .marca-sub{font-size:11.5px;color:#7E97AE;margin-top:3px}
 .menu{padding:14px 12px;flex:1;display:flex;flex-direction:column;gap:2px}
 .menu button{
@@ -61,7 +72,7 @@ button{cursor:pointer}
   padding:9px 12px;border-radius:var(--raio);text-align:left;font-size:13.5px;
 }
 .menu button:hover{background:rgba(255,255,255,.07);color:#fff}
-.menu button[aria-current="page"]{background:var(--tinta-3);color:#fff;font-weight:500}
+.menu button[aria-current="page"]{background:rgba(255,255,255,.1);color:#fff;font-weight:600;box-shadow:inset 3px 0 0 var(--placa)}
 .menu svg{width:16px;height:16px;flex:none;opacity:.85}
 .usuario{
   padding:14px 18px;border-top:1px solid rgba(255,255,255,.09);
@@ -69,7 +80,7 @@ button{cursor:pointer}
 }
 .avatar{
   width:32px;height:32px;border-radius:50%;flex:none;
-  background:var(--tinta-3);color:#fff;
+  background:var(--placa);color:#16303A;
   display:grid;place-items:center;font-size:12px;font-weight:600;
 }
 .usuario-nome{color:#fff;font-size:13px;font-weight:500;line-height:1.3}
@@ -77,7 +88,7 @@ button{cursor:pointer}
 
 .principal{display:flex;flex-direction:column;min-width:0}
 .topo{
-  background:var(--papel);border-bottom:1px solid var(--linha);
+  background:var(--papel);border-bottom:1px solid var(--linha-forte);
   padding:0 28px;height:64px;
   display:flex;align-items:center;gap:18px;
   position:sticky;top:0;z-index:30;
@@ -127,33 +138,34 @@ button{cursor:pointer}
   padding:8px 14px;border-radius:var(--raio);font-size:13.5px;font-weight:500;
 }
 .btn:hover{border-color:var(--tinta-3)}
-.btn-principal{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.btn-principal{background:var(--tinta);border-color:var(--tinta);color:#fff;font-weight:600;letter-spacing:.01em}
 .btn-principal:hover{background:var(--tinta-2);border-color:var(--tinta-2)}
 .btn:focus-visible,.menu button:focus-visible,.regional-botao:focus-visible,
 .regional-item:focus-visible{outline:2px solid var(--tinta-3);outline-offset:2px}
 
 /* ---------- cabeçalho de página ---------- */
 .pagina{display:flex;align-items:flex-start;gap:20px;margin-bottom:22px}
-.pagina h1{font-size:23px}
+.pagina h1{font-size:30px;line-height:1.1}
 .pagina p{margin:5px 0 0;color:var(--texto-fraco);font-size:13.5px;max-width:62ch}
 .pagina-acoes{margin-left:auto;display:flex;gap:10px;flex:none}
 
 /* ---------- indicadores ---------- */
-.indicadores{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-.indicadores-us13{grid-template-columns:repeat(2,1fr);margin-bottom:14px}
-.indicadores-us13 .ind-val{font-size:30px}
-.ind{background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);padding:16px 17px;box-shadow:var(--sombra)}
+.indicadores{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:22px;background:var(--papel);border:1px solid var(--linha-forte);border-top:2px solid var(--tinta);border-radius:var(--raio)}
+.indicadores-us13{grid-template-columns:repeat(2,1fr);margin-bottom:14px;border-top-color:var(--placa)}
+.indicadores-us13 .ind-val{font-size:38px}
+.ind{padding:16px 18px 15px;border-left:1px solid var(--linha)}
+.ind:first-child{border-left:0}
 .ind-rot{font-size:12.5px;color:var(--texto-fraco);line-height:1.35;min-height:2.7em}
-.ind-val{font-family:'IBM Plex Serif',serif;font-size:30px;font-weight:600;line-height:1.1;margin-top:8px;font-variant-numeric:tabular-nums}
+.ind-val{font-family:var(--serif);font-size:34px;font-weight:500;line-height:1;margin-top:6px;font-variant-numeric:tabular-nums;font-variation-settings:'opsz' 144;letter-spacing:-.02em}
 .ind-nota{font-size:12px;color:var(--texto-tenue);margin-top:5px}
 .ind.aviso .ind-val{color:var(--alerta)}
 .ind.critico .ind-val{color:var(--risco)}
 
 /* ---------- painéis ---------- */
 .colunas{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;align-items:start}
-.painel{background:var(--papel);border:1px solid var(--linha);border-radius:var(--raio);box-shadow:var(--sombra);overflow:hidden}
+.painel{background:var(--papel);border:1px solid var(--linha-forte);border-top:2px solid var(--tinta);border-radius:var(--raio);overflow:hidden}
 .painel-topo{padding:14px 17px;border-bottom:1px solid var(--linha);display:flex;align-items:center;gap:12px}
-.painel-topo h2{font-size:15px}
+.painel-topo h2{font-size:17px}
 .painel-topo .conta{margin-left:auto;font-size:12px;color:var(--texto-tenue);font-variant-numeric:tabular-nums}
 
 .linha-ag{display:flex;align-items:center;gap:13px;padding:11px 17px;border-bottom:1px solid var(--linha)}
@@ -341,7 +353,7 @@ button{cursor:pointer}
 }
 .obj:hover{border-color:var(--tinta-3)}
 .obj[aria-pressed="true"]{border-color:var(--tinta);box-shadow:0 0 0 1px var(--tinta)}
-.obj .t{font-family:'IBM Plex Serif',serif;font-size:15px;font-weight:600}
+.obj .t{font-family:var(--serif);font-size:16px;font-weight:600}
 .obj .s{font-size:12.5px;color:var(--texto-fraco);margin-top:5px;line-height:1.45}
 
 .peso{margin-top:20px;padding:18px 20px;border:1px solid var(--linha);border-radius:var(--raio);background:#F7F9FB}
@@ -377,7 +389,7 @@ input[type="range"]:focus-visible{outline:2px solid var(--tinta-3);outline-offse
 .pm.vence .pm-topo svg{color:var(--ganho)}
 .pm-nome{font-size:13px;font-weight:500}
 .pm-selo{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--ganho);letter-spacing:.02em}
-.pm-val{font-family:'IBM Plex Serif',serif;font-size:19px;font-weight:600;margin-top:7px;font-variant-numeric:tabular-nums}
+.pm-val{font-family:var(--serif);font-size:21px;font-weight:500;margin-top:7px;font-variant-numeric:tabular-nums}
 .pm-sub{font-size:12px;color:var(--texto-fraco);font-variant-numeric:tabular-nums}
 .pm-obs{font-size:11.5px;color:var(--texto-tenue);margin-top:6px;line-height:1.4}
 
@@ -396,7 +408,66 @@ input[type="range"]:focus-visible{outline:2px solid var(--tinta-3);outline-offse
 
 __CSS_RESULTADO__
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ---------- entrada (identificação, sem senha) ---------- */
+.entrada{
+  position:fixed;inset:0;z-index:100;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(400px,.75fr);
+  background:var(--tela);
+}
+.entrada[hidden]{display:none}
+.entrada-mapa{
+  position:relative;overflow:hidden;background:var(--tinta);color:#E6ECE6;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.08' stroke-width='1'%3E%3Cpath d='M-20 60c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 100c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 140c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 180c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 220c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3Cpath d='M-20 20c40-30 80-30 120 0s80 30 120 0s80-30 120 0'/%3E%3C/g%3E%3C/svg%3E");
+  display:flex;flex-direction:column;justify-content:space-between;padding:48px 56px;
+}
+.entrada-mapa svg.brasil{position:absolute;right:-4%;top:50%;transform:translateY(-52%);width:66%;height:auto;pointer-events:none}
+.entrada-mapa svg.brasil .estado{fill:rgba(255,255,255,.045);stroke:rgba(255,255,255,.28);stroke-width:.7;transition:fill .5s ease}
+.entrada-mapa svg.brasil .estado.ativo{fill:rgba(201,135,31,.22);stroke:rgba(201,135,31,.9);stroke-width:1.1}
+.entrada-mapa svg.brasil .sede{fill:rgba(255,255,255,.35)}
+.entrada-mapa svg.brasil .agencia{fill:#E8B45C;opacity:0;animation:surgir .5s ease forwards}
+.entrada-mapa svg.brasil .sede-ativa{fill:#fff;stroke:#C9871F;stroke-width:3}
+.entrada-mapa svg.brasil .pulso{fill:none;stroke:#C9871F;stroke-width:2;transform-box:fill-box;transform-origin:center;animation:pulsar 2.2s ease-out infinite}
+@keyframes surgir{to{opacity:1}}
+@keyframes pulsar{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+@media (prefers-reduced-motion:reduce){.entrada-mapa svg.brasil .agencia{animation:none;opacity:1}.entrada-mapa svg.brasil .pulso{animation:none;display:none}}
+.entrada-regional-nome{position:absolute;left:0;right:0;bottom:-6px;text-align:center;pointer-events:none}
+.entrada-marca{font-family:var(--serif);font-size:20px;color:#fff;font-weight:600;line-height:1.15}
+.entrada-marca small{display:block;font-family:var(--sans);font-size:12px;color:#9DB3AD;font-weight:400;margin-top:4px}
+.entrada-titulo{position:relative;max-width:520px}
+.entrada-titulo h1{font-family:var(--serif);font-size:60px;line-height:1.0;color:#fff;font-weight:500;letter-spacing:-.025em;font-variation-settings:'opsz' 144;max-width:9ch}
+.entrada-titulo h1 em{font-style:italic;color:var(--placa)}
+.entrada-titulo p{margin:18px 0 0;font-size:15px;line-height:1.55;color:#C5D2CC;max-width:44ch}
+.entrada-numeros{position:relative;display:flex;gap:34px;font-variant-numeric:tabular-nums}
+.entrada-numeros b{display:block;font-family:var(--serif);font-size:30px;font-weight:500;color:#fff;line-height:1}
+.entrada-numeros span{font-size:12px;color:#9DB3AD}
+.entrada-form{display:flex;align-items:center;justify-content:center;padding:40px 48px;position:relative}
+.entrada-form::before{content:"";position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--linha-forte)}
+.entrada-cartao{width:100%;max-width:400px;background:var(--papel);border:1px solid var(--linha-forte);border-top:3px solid var(--placa);border-radius:var(--raio);padding:32px 30px 26px}
+.entrada-data{font-size:12.5px;color:var(--texto-tenue);margin-bottom:14px}
+.entrada-previa{display:flex;gap:18px;margin:-6px 0 18px;padding:12px 14px;background:var(--tela);border-radius:var(--raio);font-variant-numeric:tabular-nums}
+.entrada-previa b{display:block;font-family:var(--serif);font-size:22px;font-weight:500;line-height:1}
+.entrada-previa span{font-size:11.5px;color:var(--texto-fraco)}
+.entrada-cartao h2{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-.015em;line-height:1.1}
+.entrada-cartao .sub{color:var(--texto-fraco);font-size:13.5px;margin:8px 0 28px;line-height:1.5}
+.campo{display:block;margin-bottom:16px}
+.campo span{display:block;font-size:12.5px;font-weight:600;color:var(--texto);margin-bottom:6px}
+.campo input,.campo select{
+  width:100%;padding:11px 12px;border:1px solid var(--linha-forte);border-radius:var(--raio);
+  background:var(--papel);font-size:14px;outline:0;
+}
+.campo input:focus,.campo select:focus{border-color:var(--tinta);box-shadow:0 0 0 3px rgba(22,48,58,.12)}
+.campo .ajuda{display:block;font-size:12px;color:var(--texto-tenue);margin-top:5px;font-weight:400}
+.lembrar{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--texto-fraco);margin:4px 0 22px}
+.lembrar input{width:16px;height:16px;accent-color:var(--tinta)}
+.entrada-cartao .btn-principal{width:100%;padding:12px;font-size:15px}
+.entrada-rodape{margin-top:22px;font-size:12px;color:var(--texto-tenue);line-height:1.5}
+.entrada-rodape b{color:var(--texto-fraco);font-weight:600}
+.menu .sair{margin-top:auto}
 @media (max-width:1080px){
+  .entrada{grid-template-columns:1fr;overflow:auto}
+  .entrada-mapa{padding:28px 24px;min-height:300px}
+  .entrada-mapa svg.brasil{display:none}
+  .entrada-titulo h1{font-size:36px}
+  .entrada-form{padding:28px 20px}
   .app{grid-template-columns:1fr}
   .lateral{position:static;height:auto;flex-direction:row;align-items:center}
   .menu{flex-direction:row;flex-wrap:wrap;padding:10px}
@@ -409,6 +480,37 @@ __CSS_RESULTADO__
 </style>
 </head>
 <body>
+
+<div class="entrada" id="entrada" hidden>
+  <section class="entrada-mapa">
+    <div class="entrada-marca">Roteirização de Visitas<small>Planejamento de rede · Itaú Unibanco</small></div>
+    <svg class="brasil" viewBox="0 0 680 500" aria-hidden="true" id="entrada-brasil"></svg>
+    <div class="entrada-titulo">
+      <h1>O roteiro certo para a sua regional.</h1>
+      <p>Escolha as agências, informe o período e o objetivo. O sistema devolve a sequência de visitas, o transporte de cada trecho e quanto você economiza em relação a fazer tudo de carro.</p>
+    </div>
+    <div class="entrada-numeros">
+      <div><b id="entrada-n-ag">—</b><span>agências na rede</span></div>
+      <div><b id="entrada-n-reg">—</b><span>regionais</span></div>
+      <div><b>3</b><span>modais comparados</span></div>
+    </div>
+  </section>
+  <section class="entrada-form">
+    <form class="entrada-cartao" id="form-entrada" autocomplete="off">
+      <div class="entrada-data" id="entrada-data"></div>
+      <h2>Bom dia, gerente.</h2>
+      <p class="sub">Identifique-se para abrir o painel da sua regional. Sem senha neste protótipo: em produção a entrada é pelo login corporativo do banco.</p>
+      <label class="campo"><span>Seu nome</span>
+        <input id="entrada-nome" value="Rafael Menezes" required maxlength="60"></label>
+      <label class="campo"><span>Regional</span>
+        <select id="entrada-regional"></select></label>
+      <div class="entrada-previa" id="entrada-previa"></div>
+      <label class="lembrar"><input type="checkbox" id="entrada-lembrar" checked> Lembrar neste navegador</label>
+      <button class="btn btn-principal" type="submit">Abrir o painel</button>
+      <p class="entrada-rodape"><b>Dados públicos.</b> Agências do cadastro do Banco Central; preços de combustível da ANP. Nenhum dado pessoal é guardado além do nome que você digitar, neste navegador.</p>
+    </form>
+  </section>
+</div>
 
 <div class="app">
   <aside class="lateral">
@@ -561,11 +663,17 @@ function pintarMenu() {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
            stroke-linecap="round" stroke-linejoin="round"><path d="${i.d}"/></svg>
       ${i.rot}
-    </button>`).join("");
+    </button>`).join("") + `
+    <button class="sair" data-sair>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Sair
+    </button>`;
 
-  $("#menu").querySelectorAll("button").forEach((b) => {
+  $("#menu").querySelectorAll("button[data-tela]").forEach((b) => {
     b.onclick = () => irPara(b.dataset.tela);
   });
+  $("#menu").querySelector("[data-sair]").onclick = sair;
 }
 
 /* ---------- seletor de regional ---------- */
@@ -1437,13 +1545,105 @@ __TELAS__
 
 __EXTRAS__
 
-/* ---------- início ---------- */
-estado.regional = DADOS.regionais.find((r) => r.nome.startsWith("Goiânia")) || DADOS.regionais[0];
-$("#btn-novo").onclick = () => { estado.plano = novoPlano(); irPara("novo"); };
-estado.salvos = carregarSalvos();
-pintarMenu();
-pintarRegional();
-pintarTela();
+/* ---------- entrada: identificação, sem senha ----------
+   Guarda só nome e regional neste navegador (RNF08: nenhum dado pessoal
+   além disso). Autenticação de verdade fica para o login corporativo. */
+const CHAVE_ENTRADA = "roteirizacao.entrada.v1";
+
+function lerEntrada() {
+  try { return JSON.parse(window.localStorage.getItem(CHAVE_ENTRADA) || "null"); } catch (e) { return null; }
+}
+
+function aplicarEntrada(nome, regionalId) {
+  estado.usuario = nome;
+  estado.regional = DADOS.regionais.find((r) => r.id === regionalId) || DADOS.regionais[0];
+  const iniciais = nome.trim().split(/\s+/).map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "RM";
+  $(".avatar").textContent = iniciais;
+  $(".usuario-nome").textContent = nome;
+}
+
+function desenharBrasilEntrada() {
+  const svg = $("#entrada-brasil");
+  if (!svg || !DADOS.estados) return;
+  const pts = DADOS.estados.flatMap((e) => e.aneis.flat());
+  const lons = pts.map((p) => p[0]), lats = pts.map((p) => p[1]);
+  const x0 = Math.min(...lons), x1 = Math.max(...lons), y0 = Math.min(...lats), y1 = Math.max(...lats);
+  const escala = Math.min(640 / (x1 - x0), 470 / (y1 - y0));
+  const P = ([lon, lat]) => `${((lon - x0) * escala + 20).toFixed(1)} ${((y1 - lat) * escala + 15).toFixed(1)}`;
+  const regionalAtual = () => +$("#entrada-regional").value;
+  const xy = (lon, lat) => P([lon, lat]).split(" ");
+  const pintar = () => {
+    const sel = DADOS.regionais.find((r) => r.id === regionalAtual());
+    const ufs = new Set(sel ? sel.ufs : []);
+    const estados = DADOS.estados.map((e) => `<path class="estado ${ufs.has(e.uf) ? "ativo" : ""}"
+        d="${e.aneis.map((a) => "M" + a.map(P).join("L") + "Z").join("")}"/>`).join("");
+    const sedes = DADOS.regionais.filter((r) => !sel || r.id !== sel.id)
+      .map((r) => { const [x, y] = xy(r.sede.lon, r.sede.lat); return `<circle class="sede" cx="${x}" cy="${y}" r="1.8"/>`; }).join("");
+    const agencias = sel ? DADOS.agencias.filter((a) => a.regional === sel.id)
+      .map((a, i) => { const [x, y] = xy(a.lon, a.lat); return `<circle class="agencia" cx="${x}" cy="${y}" r="2.6" style="animation-delay:${(i * 18)}ms"/>`; }).join("") : "";
+    const [sx, sy] = sel ? xy(sel.sede.lon, sel.sede.lat) : [0, 0];
+    svg.innerHTML = estados + sedes + agencias +
+      (sel ? `<circle class="pulso" cx="${sx}" cy="${sy}" r="9"/><circle class="sede-ativa" cx="${sx}" cy="${sy}" r="5.5"/>` : "");
+    if (sel) {
+      $("#entrada-previa").innerHTML = `
+        <div><b>${sel.agencias}</b><span>agências</span></div>
+        <div><b>${sel.municipios}</b><span>municípios</span></div>
+        <div><b>${sel.extensaoKm} km</b><span>maior distância</span></div>
+        <div><b>${sel.ufs.join(", ")}</b><span>sede em ${esc(sel.sede.municipio)}</span></div>`;
+    }
+  };
+  $("#entrada-regional").addEventListener("change", pintar);
+  pintar();
+}
+
+function mostrarEntrada() {
+  const sel = $("#entrada-regional");
+  sel.innerHTML = [...DADOS.regionais].sort((a, b) => a.nome.localeCompare(b.nome))
+    .map((r) => `<option value="${r.id}">${esc(r.nome)} · ${r.agencias} agências (${r.ufs.join(", ")})</option>`).join("");
+  const padrao = DADOS.regionais.find((r) => r.nome.startsWith("Goiânia")) || DADOS.regionais[0];
+  sel.value = padrao.id;
+  $("#entrada-n-ag").textContent = DADOS.agencias.length.toLocaleString("pt-BR");
+  const h = new Date().getHours();
+  $("#form-entrada h2").textContent = (h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite") + ", gerente.";
+  $("#entrada-data").textContent = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  $("#entrada-n-reg").textContent = DADOS.regionais.length;
+  desenharBrasilEntrada();
+  $("#entrada").hidden = false;
+  $("#entrada-nome").focus();
+  $("#form-entrada").onsubmit = (ev) => {
+    ev.preventDefault();
+    const nome = $("#entrada-nome").value.trim() || "Gerente regional";
+    const regionalId = +sel.value;
+    if ($("#entrada-lembrar").checked) {
+      try { window.localStorage.setItem(CHAVE_ENTRADA, JSON.stringify({ nome, regionalId })); } catch (e) { /* sem armazém */ }
+    }
+    $("#entrada").hidden = true;
+    iniciarApp(nome, regionalId);
+  };
+}
+
+function sair() {
+  try { window.localStorage.removeItem(CHAVE_ENTRADA); } catch (e) { /* sem armazém */ }
+  estado.plano = null;
+  mostrarEntrada();
+}
+
+function iniciarApp(nome, regionalId) {
+  aplicarEntrada(nome, regionalId);
+  $("#btn-novo").onclick = () => { estado.plano = novoPlano(); irPara("novo"); };
+  estado.salvos = carregarSalvos();
+  pintarMenu();
+  pintarRegional();
+  irPara("painel");
+}
+
+const lembrado = lerEntrada();
+if (lembrado && DADOS.regionais.some((r) => r.id === lembrado.regionalId)) {
+  iniciarApp(lembrado.nome, lembrado.regionalId);
+} else {
+  estado.regional = DADOS.regionais[0];
+  mostrarEntrada();
+}
 </script>
 </body>
 </html>
